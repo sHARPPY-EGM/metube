@@ -145,6 +145,7 @@ export class App implements AfterViewInit, OnInit {
   }
 
   ngOnInit() {
+    console.log('App ngOnInit called');
     this.getConfiguration();
     this.getYtdlOptionsUpdateTime();
     this.customDirs$ = this.getMatchingCustomDir();
@@ -155,11 +156,23 @@ export class App implements AfterViewInit, OnInit {
   
   checkAuthAndRoute() {
     // Check current path
-    const path = window.location.pathname.replace(this.getUrlPrefix(), '').replace(/^\//, '') || '/';
+    const fullPath = window.location.pathname;
+    const prefix = this.getUrlPrefix();
+    let path = fullPath.replace(prefix, '');
+    if (path.startsWith('/')) {
+      path = path.substring(1);
+    }
+    if (!path) {
+      path = '/';
+    }
+    
+    console.log('checkAuthAndRoute - fullPath:', fullPath, 'prefix:', prefix, 'path:', path, 'currentView:', this.currentView);
     
     if (path === 'setup' || path.startsWith('setup')) {
+      console.log('Setting currentView to setup');
       this.currentView = 'setup';
       this.cdr.detectChanges();
+      console.log('currentView after setup:', this.currentView);
       return;
     }
     
