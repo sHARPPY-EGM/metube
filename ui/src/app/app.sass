@@ -203,6 +203,47 @@ button.add-url
             color: $purple-accent
             margin-right: 0.25rem
 
+// Table Checkbox Styling (Master/Slave checkboxes)
+.table .form-check,
+th .form-check,
+td .form-check
+    margin: 0
+    padding: 0
+    min-height: auto
+    display: flex
+    align-items: center
+    justify-content: center
+
+    .form-check-input
+        width: 16px
+        height: 16px
+        margin: 0
+        border-radius: 3px
+        background-color: $bg-tertiary
+        border: 2px solid rgba(255, 255, 255, 0.25)
+        cursor: pointer
+        transition: all $transition-fast
+        flex-shrink: 0
+
+        &:hover
+            background-color: $bg-elevated
+            border-color: rgba(124, 58, 237, 0.5)
+
+        &:checked
+            background-color: $purple-accent
+            border-color: $purple-accent
+
+        &:focus
+            box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.25)
+            outline: none
+
+        &:indeterminate
+            background-color: $purple-accent
+            border-color: $purple-accent
+
+    .form-check-label
+        display: none
+
 // Section Headers
 .metube-section-header
     font-size: 1.5rem
@@ -363,6 +404,11 @@ button.add-url
         font-size: 0.9rem
         font-weight: 500
 
+        .heart
+            color: #ef4444
+            margin-left: 0.25rem
+            animation: heartbeat 1.5s ease-in-out infinite
+
 // ng-select Custom Styling
 ::ng-deep .ng-select
     flex: 1
@@ -510,3 +556,10 @@ hr
     .input-group
         display: flex
         padding: 0.5rem
+
+// Heart animation
+@keyframes heartbeat
+    0%, 100%
+        transform: scale(1)
+    50%
+        transform: scale(1.15)

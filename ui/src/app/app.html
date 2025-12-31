@@ -207,28 +207,12 @@
             
             <!-- Batch Actions -->
             <div class="row g-2">
-              <div class="col-md-4">
+              <div class="col-12">
                 <button type="button"
                   class="btn btn-secondary w-100"
                   (click)="openBatchImportModal()">
                   <fa-icon [icon]="faFileImport" class="me-2" />
-                  URLs importieren
-                </button>
-              </div>
-              <div class="col-md-4">
-                <button type="button"
-                  class="btn btn-secondary w-100"
-                  (click)="exportBatchUrls('all')">
-                  <fa-icon [icon]="faFileExport" class="me-2" />
-                  URLs exportieren
-                </button>
-              </div>
-              <div class="col-md-4">
-                <button type="button"
-                  class="btn btn-secondary w-100"
-                  (click)="copyBatchUrls('all')">
-                  <fa-icon [icon]="faCopy" class="me-2" />
-                  URLs kopieren
+                  Mehrere URLs importieren
                 </button>
               </div>
             </div>
@@ -371,10 +355,10 @@
       <fa-icon [icon]="faCheckCircle" class="me-1" /> Fertige löschen
     </button>
     <button type="button" class="btn btn-link text-danger px-0 me-3" disabled #doneClearFailed (click)="clearFailedDownloads()">
-      <fa-icon [icon]="faTimesCircle" class="me-1" /> Fehler löschen
+      <fa-icon [icon]="faTimesCircle" class="me-1" /> Fehlerhafte löschen
     </button>
     <button type="button" class="btn btn-link px-0 me-3" disabled #doneRetryFailed (click)="retryFailedDownloads()">
-      <fa-icon [icon]="faRedoAlt" class="me-1" /> Fehler wiederholen
+      <fa-icon [icon]="faRedoAlt" class="me-1" /> Fehlerhafte wiederholen
     </button>
     <button type="button" class="btn btn-link px-0" disabled #doneDownloadSelected (click)="downloadSelectedFiles()">
       <fa-icon [icon]="faDownload" class="me-1" /> Ausgewählte herunterladen
@@ -463,7 +447,7 @@
 <footer class="footer">
   <div class="container text-center">
     <div class="footer-content">
-      Created by sHARPPY
+      Created by sHARPPY / Adrian <span class="heart">❤</span>
     </div>
   </div>
 </footer>

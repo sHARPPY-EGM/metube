@@ -1,6 +1,6 @@
 import { DecimalPipe, KeyValuePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { AfterViewInit, Component, ElementRef, viewChild, inject, OnInit } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, viewChild, inject, OnInit, ChangeDetectorRef } from '@angular/core';
 import { Observable, map, distinctUntilChanged } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -36,6 +36,7 @@ export class App implements AfterViewInit, OnInit {
   downloads = inject(DownloadsService);
   private cookieService = inject(CookieService);
   private http = inject(HttpClient);
+  private cdr = inject(ChangeDetectorRef);
 
   addUrl!: string;
   formats: Format[] = Formats;
@@ -113,13 +114,16 @@ export class App implements AfterViewInit, OnInit {
     // Subscribe to download updates
     this.downloads.queueChanged.subscribe(() => {
       this.updateMetrics();
+      this.cdr.detectChanges();
     });
     this.downloads.doneChanged.subscribe(() => {
       this.updateMetrics();
+      this.cdr.detectChanges();
     });
-    // Subscribe to real-time updates
+    // Subscribe to real-time updates for live progress
     this.downloads.updated.subscribe(() => {
       this.updateMetrics();
+      this.cdr.detectChanges();
     });
   }
 
