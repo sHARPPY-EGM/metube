@@ -14,12 +14,6 @@
           <span>{{queuedDownloads}} wartend</span>
         </div>
       }
-      @if (completedDownloads > 0) {
-        <div class="metric">
-          <fa-icon [icon]="faCheck" class="text-success" />
-          <span>{{completedDownloads}} fertig</span>
-        </div>
-      }
       @if (failedDownloads > 0) {
         <div class="metric">
           <fa-icon [icon]="faTimesCircle" class="text-danger" />
@@ -110,7 +104,7 @@
             <div class="row g-3">
               <!-- Auto Start -->
               <div class="col-md-6">
-                <div class="input-group">
+                <div class="input-group" ngbTooltip="Wenn aktiviert, startet der Download automatisch nach dem Hinzufügen. Bei 'Nein' wird er in die Warteschlange eingereiht.">
                   <span class="input-group-text">Auto-Start</span>
                   <select class="form-select"
                     name="autoStart"
@@ -125,7 +119,7 @@
               
               <!-- Name Prefix -->
               <div class="col-md-6">
-                <div class="input-group">
+                <div class="input-group" ngbTooltip="Ein Präfix, das vor jeden Dateinamen gestellt wird. Nützlich zur Sortierung oder Kategorisierung.">
                   <span class="input-group-text">Namenspräfix</span>
                   <input type="text"
                     class="form-control"
@@ -138,7 +132,7 @@
               
               <!-- Playlist Limit -->
               <div class="col-md-6">
-                <div class="input-group">
+                <div class="input-group" ngbTooltip="Begrenzt die Anzahl der Videos, die aus einer Playlist heruntergeladen werden. 0 bedeutet unbegrenzt.">
                   <span class="input-group-text">Playlist-Limit</span>
                   <input type="number"
                     min="0"
@@ -152,7 +146,7 @@
               </div>
               
               <!-- Strict Playlist Mode -->
-              <div class="col-md-6">
+              <div class="col-md-6" ngbTooltip="Wenn aktiviert, werden nur Playlists heruntergeladen, wenn die URL explizit auf eine Playlist verweist. Einzelne Videos in einer Playlist werden ignoriert.">
                 <div class="form-check form-switch d-flex align-items-center h-100">
                   <input class="form-check-input"
                     type="checkbox"
@@ -167,26 +161,25 @@
                 </div>
               </div>
               
-              <!-- Subtitles -->
-              <div class="col-md-6">
-                <div class="form-check form-switch d-flex align-items-center h-100">
+              <!-- Subtitles (Work in Progress) -->
+              <div class="col-md-6" ngbTooltip="Diese Funktion befindet sich noch in Entwicklung und ist derzeit nicht verfügbar.">
+                <div class="form-check form-switch d-flex align-items-center h-100 disabled-option">
                   <input class="form-check-input"
                     type="checkbox"
                     role="switch"
                     id="subtitles"
                     name="subtitlesEnabled"
                     [(ngModel)]="subtitlesEnabled"
-                    (change)="subtitlesEnabledChanged()"
-                    [disabled]="addInProgress || downloads.loading">
-                  <label class="form-check-label" for="subtitles">
+                    disabled>
+                  <label class="form-check-label text-muted" for="subtitles">
                     <fa-icon [icon]="faClosedCaptioning" class="me-1" />
-                    Untertitel herunterladen
+                    Untertitel herunterladen <span class="wip-badge">(Work in Progress)</span>
                   </label>
                 </div>
               </div>
               
               <!-- Sound Notification -->
-              <div class="col-md-6">
+              <div class="col-md-6" ngbTooltip="Spielt einen kurzen Ton ab, wenn ein Download erfolgreich abgeschlossen wurde.">
                 <div class="form-check form-switch d-flex align-items-center h-100">
                   <input class="form-check-input"
                     type="checkbox"
@@ -307,8 +300,8 @@
                     </div>
                   } @else {
                     <div class="progress">
-                      <div class="progress-bar" [style.width.%]="download.value.percent">
-                        {{ download.value.percent | number:'1.0-0' }}%
+                      <div class="progress-bar" [style.width.%]="download.value.percent || 0">
+                        {{ (download.value.percent || 0) | number:'1.0-0' }}%
                       </div>
                     </div>
                   }
