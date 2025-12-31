@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
@@ -9,7 +9,7 @@ import { AuthService } from '../../services/auth.service';
   templateUrl: './setup.component.html',
   styleUrl: './setup.component.sass'
 })
-export class SetupComponent implements OnInit {
+export class SetupComponent {
   private authService = inject(AuthService);
   
   username = '';
@@ -17,14 +17,6 @@ export class SetupComponent implements OnInit {
   confirmPassword = '';
   error = '';
   loading = false;
-  
-  constructor() {
-    console.log('SetupComponent constructor called');
-  }
-  
-  ngOnInit() {
-    console.log('SetupComponent ngOnInit called');
-  }
 
   onSubmit() {
     this.error = '';
