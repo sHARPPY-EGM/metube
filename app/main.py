@@ -239,11 +239,16 @@ async def auth_middleware(request, handler):
         
         # Check if user is authenticated
         if not session.get('authenticated', False):
-            if is_auth_page and path != '/login':
-                # Redirect to login if accessing main page
+            # Allow access to login page
+            if path == '/login':
+                return await handler(request)
+            
+            # Allow access to other auth pages (setup, admin)
+            if is_auth_page:
+                # Redirect main page to login
                 if path == '/' or path == '':
                     return web.HTTPFound(config.URL_PREFIX.rstrip('/') + '/login')
-                # Allow access to auth pages
+                # Allow access to other auth pages
                 return await handler(request)
             
             # For API requests, return 401
