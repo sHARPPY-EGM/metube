@@ -1,32 +1,31 @@
 <nav class="navbar navbar-expand-md navbar-dark">
   <div class="container-fluid">
     <a class="navbar-brand d-flex align-items-center" href="#">
-      <img src="assets/icons/android-chrome-192x192.png" alt="MeTube Logo" height="32" class="me-2">
-      MeTube
+      ORION
     </a>
     <div class="download-metrics">
       @if (activeDownloads > 0) {
         <div class="metric">
           <fa-icon [icon]="faDownload" class="text-primary" />
-          <span>{{activeDownloads}} downloading</span>
+          <span>{{activeDownloads}} lädt</span>
         </div>
       }
       @if (queuedDownloads > 0) {
         <div class="metric">
           <fa-icon [icon]="faClock" class="text-warning" />
-          <span>{{queuedDownloads}} queued</span>
+          <span>{{queuedDownloads}} wartend</span>
         </div>
       }
       @if (completedDownloads > 0) {
         <div class="metric">
           <fa-icon [icon]="faCheck" class="text-success" />
-          <span>{{completedDownloads}} completed</span>
+          <span>{{completedDownloads}} abgeschlossen</span>
         </div>
       }
       @if (failedDownloads > 0) {
         <div class="metric">
           <fa-icon [icon]="faTimesCircle" class="text-danger" />
-          <span>{{failedDownloads}} failed</span>
+          <span>{{failedDownloads}} fehlgeschlagen</span>
         </div>
       }
       @if ((totalSpeed | speed) !== '') {
@@ -50,7 +49,7 @@
               autocomplete="off"
               spellcheck="false"
               class="form-control form-control-lg"
-              placeholder="Enter video or playlist URL"
+              placeholder="Video- oder Playlist-URL eingeben"
               name="addUrl"
               [(ngModel)]="addUrl"
               [disabled]="addInProgress || downloads.loading">
@@ -61,7 +60,7 @@
               @if (addInProgress) {
                 <span class="spinner-border spinner-border-sm" role="status" id="add-spinner"></span>
               }
-              {{ addInProgress ? "Adding..." : "Download" }}
+              {{ addInProgress ? "Hinzufügen..." : "Download" }}
             </button>
           </div>
         </div>
@@ -71,7 +70,7 @@
       <div class="row mb-3 g-3">
         <div class="col-md-4">
           <div class="input-group">
-            <span class="input-group-text">Quality</span>
+            <span class="input-group-text">Qualität</span>
             <select class="form-select"
               name="quality"
               [(ngModel)]="quality"
@@ -101,7 +100,7 @@
           <button type="button"
             class="btn btn-outline-secondary w-100 h-100"
             (click)="toggleAdvanced()">
-            Advanced Options
+            Erweiterte Optionen
           </button>
         </div>
       </div>
@@ -115,26 +114,26 @@
               <div class="row g-3 mb-2">
                 <div class="col-md-6">
                   <div class="input-group">
-                    <span class="input-group-text">Auto Start</span>
+                    <span class="input-group-text">Automatisch starten</span>
                     <select class="form-select"
                       name="autoStart"
                       [(ngModel)]="autoStart"
                       (change)="autoStartChanged()"
                       [disabled]="addInProgress || downloads.loading"
-                      ngbTooltip="Automatically start downloads when added">
-                      <option [ngValue]="true">Yes</option>
-                      <option [ngValue]="false">No</option>
+                      ngbTooltip="Downloads automatisch starten, wenn hinzugefügt">
+                      <option [ngValue]="true">Ja</option>
+                      <option [ngValue]="false">Nein</option>
                     </select>
                   </div>
                 </div>
                 <div class="col-md-6">
                   <div class="input-group">
-                    <span class="input-group-text">Download Folder</span>
+                    <span class="input-group-text">Download-Ordner</span>
                     @if (customDirs$ | async; as customDirs) {
                     <ng-select [items]="customDirs"
-                      placeholder="Default"
+                      placeholder="Standard"
                       [addTag]="allowCustomDir.bind(this)"
-                      addTagText="Create directory"
+                      addTagText="Ordner erstellen"
                       bindLabel="folder"
                       [(ngModel)]="folder"
                       [disabled]="addInProgress || downloads.loading"
@@ -143,35 +142,35 @@
                       [loading]="downloads.loading"
                       [searchable]="true"
                       [closeOnSelect]="true"
-                      ngbTooltip="Choose where to save downloads. Type to create a new folder." />
+                      ngbTooltip="Ordner für Downloads auswählen. Tippen, um neuen Ordner zu erstellen." />
                   }
                   </div>
            
                 </div>
                 <div class="col-md-6">
                   <div class="input-group">
-                    <span class="input-group-text">Custom Name Prefix</span>
+                    <span class="input-group-text">Namenspräfix</span>
                     <input type="text"
                       class="form-control"
-                      placeholder="Default"
+                      placeholder="Standard"
                       name="customNamePrefix"
                       [(ngModel)]="customNamePrefix"
                       [disabled]="addInProgress || downloads.loading"
-                      ngbTooltip="Add a prefix to downloaded filenames">
+                      ngbTooltip="Präfix zu heruntergeladenen Dateinamen hinzufügen">
                   </div>
                 </div>
                 <div class="col-md-6">
                   <div class="input-group">
-                    <span class="input-group-text">Items Limit</span>
+                    <span class="input-group-text">Artikel-Limit</span>
                     <input type="number"
                       min="0"
                       class="form-control"
-                      placeholder="Default"
+                      placeholder="Standard"
                       name="playlistItemLimit"
                       (keydown)="isNumber($event)"
                       [(ngModel)]="playlistItemLimit"
                       [disabled]="addInProgress || downloads.loading"
-                      ngbTooltip="Maximum number of items to download from a playlist (0 = no limit)">
+                      ngbTooltip="Maximale Anzahl von Elementen aus einer Playlist (0 = unbegrenzt)">
                   </div>
                 </div>
                 <div class="col-12">
@@ -183,8 +182,8 @@
                       name="playlistStrictMode"
                       [(ngModel)]="playlistStrictMode"
                       [disabled]="addInProgress || downloads.loading"
-                      ngbTooltip="Only download playlists when URL explicitly points to a playlist">
-                    <label class="form-check-label" for="checkbox-strict-mode">Strict Playlist Mode</label>
+                      ngbTooltip="Nur Playlists herunterladen, wenn URL explizit auf eine Playlist zeigt">
+                    <label class="form-check-label" for="checkbox-strict-mode">Strikter Playlist-Modus</label>
                   </div>
                 </div>
               </div>
@@ -199,7 +198,7 @@
                         class="btn btn-secondary w-100"
                         (click)="openBatchImportModal()">
                         <fa-icon [icon]="faFileImport" class="me-2" />
-                        Import URLs
+                        URLs importieren
                       </button>
                     </div>
                     <div class="col-md-4">
@@ -207,7 +206,7 @@
                         class="btn btn-secondary w-100"
                         (click)="exportBatchUrls('all')">
                         <fa-icon [icon]="faFileExport" class="me-2" />
-                        Export URLs
+                        URLs exportieren
                       </button>
                     </div>
                     <div class="col-md-4">
@@ -215,7 +214,7 @@
                         class="btn btn-secondary w-100"
                         (click)="copyBatchUrls('all')">
                         <fa-icon [icon]="faCopy" class="me-2" />
-                        Copy URLs
+                        URLs kopieren
                       </button>
                     </div>
                   </div>
@@ -235,12 +234,12 @@
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">Batch Import URLs</h5>
-          <button type="button" class="btn-close" aria-label="Close" (click)="closeBatchImportModal()"></button>
+          <h5 class="modal-title">URLs importieren</h5>
+          <button type="button" class="btn-close" aria-label="Schließen" (click)="closeBatchImportModal()"></button>
         </div>
         <div class="modal-body">
           <textarea [(ngModel)]="batchImportText" class="form-control" rows="6"
-          placeholder="Paste one video URL per line"></textarea>
+          placeholder="Eine Video-URL pro Zeile einfügen"></textarea>
           <div class="mt-2">
             @if (batchImportStatus) {
               <small>{{ batchImportStatus }}</small>
@@ -250,12 +249,12 @@
         <div class="modal-footer">
           @if (importInProgress) {
             <button type="button" class="btn btn-danger me-auto" (click)="cancelBatchImport()">
-              Cancel Import
+              Import abbrechen
             </button>
           }
-          <button type="button" class="btn btn-secondary" (click)="closeBatchImportModal()">Close</button>
+          <button type="button" class="btn btn-secondary" (click)="closeBatchImportModal()">Schließen</button>
           <button type="button" class="btn btn-primary" (click)="startBatchImport()" [disabled]="importInProgress">
-            Import URLs
+            URLs importieren
           </button>
         </div>
       </div>
@@ -265,13 +264,13 @@
 
   @if (downloads.loading) {
     <div class="alert alert-info" role="alert">
-      Connecting to server...
+      Verbinde mit Server...
     </div>
   }
-  <div class="metube-section-header">Downloading</div>
+  <div class="metube-section-header">Lädt</div>
   <div class="px-2 py-3 border-bottom">
-    <button type="button" class="btn btn-link text-decoration-none px-0 me-4" disabled #queueDelSelected (click)="delSelectedDownloads('queue')"><fa-icon [icon]="faTrashAlt" />&nbsp; Cancel selected</button>
-    <button type="button" class="btn btn-link text-decoration-none px-0 me-4" disabled #queueDownloadSelected (click)="startSelectedDownloads('queue')"><fa-icon [icon]="faDownload" />&nbsp; Download selected</button>
+    <button type="button" class="btn btn-link text-decoration-none px-0 me-4" disabled #queueDelSelected (click)="delSelectedDownloads('queue')"><fa-icon [icon]="faTrashAlt" />&nbsp; Ausgewählte abbrechen</button>
+    <button type="button" class="btn btn-link text-decoration-none px-0 me-4" disabled #queueDownloadSelected (click)="startSelectedDownloads('queue')"><fa-icon [icon]="faDownload" />&nbsp; Ausgewählte herunterladen</button>
   </div>
   <div class="overflow-auto">
     <table class="table">
@@ -281,7 +280,7 @@
             <app-master-checkbox #queueMasterCheckboxRef [id]="'queue'" [list]="downloads.queue" (changed)="queueSelectionChanged($event)" />
           </th>
           <th scope="col">Video</th>
-          <th scope="col" style="width: 8rem;">Speed</th>
+          <th scope="col" style="width: 8rem;">Geschwindigkeit</th>
           <th scope="col" style="width: 7rem;">ETA</th>
           <th scope="col" style="width: 6rem;"></th>
         </tr>
@@ -316,13 +315,13 @@
     </table>
   </div>
 
-  <div class="metube-section-header">Completed</div>
+  <div class="metube-section-header">Abgeschlossen</div>
   <div class="px-2 py-3 border-bottom">
-    <button type="button" class="btn btn-link text-decoration-none px-0 me-4" disabled #doneDelSelected (click)="delSelectedDownloads('done')"><fa-icon [icon]="faTrashAlt" />&nbsp; Clear selected</button>
-    <button type="button" class="btn btn-link text-decoration-none px-0 me-4" disabled #doneClearCompleted (click)="clearCompletedDownloads()"><fa-icon [icon]="faCheckCircle" />&nbsp; Clear completed</button>
-    <button type="button" class="btn btn-link text-decoration-none px-0 me-4" disabled #doneClearFailed (click)="clearFailedDownloads()"><fa-icon [icon]="faTimesCircle" />&nbsp; Clear failed</button>
-    <button type="button" class="btn btn-link text-decoration-none px-0 me-4" disabled #doneRetryFailed (click)="retryFailedDownloads()"><fa-icon [icon]="faRedoAlt" />&nbsp; Retry failed</button>
-    <button type="button" class="btn btn-link text-decoration-none px-0 me-4" disabled #doneDownloadSelected (click)="downloadSelectedFiles()"><fa-icon [icon]="faDownload" />&nbsp; Download Selected</button>
+    <button type="button" class="btn btn-link text-decoration-none px-0 me-4" disabled #doneDelSelected (click)="delSelectedDownloads('done')"><fa-icon [icon]="faTrashAlt" />&nbsp; Ausgewählte löschen</button>
+    <button type="button" class="btn btn-link text-decoration-none px-0 me-4" disabled #doneClearCompleted (click)="clearCompletedDownloads()"><fa-icon [icon]="faCheckCircle" />&nbsp; Abgeschlossene löschen</button>
+    <button type="button" class="btn btn-link text-decoration-none px-0 me-4" disabled #doneClearFailed (click)="clearFailedDownloads()"><fa-icon [icon]="faTimesCircle" />&nbsp; Fehlgeschlagene löschen</button>
+    <button type="button" class="btn btn-link text-decoration-none px-0 me-4" disabled #doneRetryFailed (click)="retryFailedDownloads()"><fa-icon [icon]="faRedoAlt" />&nbsp; Fehlgeschlagene erneut versuchen</button>
+    <button type="button" class="btn btn-link text-decoration-none px-0 me-4" disabled #doneDownloadSelected (click)="downloadSelectedFiles()"><fa-icon [icon]="faDownload" />&nbsp; Ausgewählte herunterladen</button>
   </div>
   <div class="overflow-auto">
     <table class="table">
@@ -332,7 +331,7 @@
             <app-master-checkbox #doneMasterCheckboxRef [id]="'done'" [list]="downloads.done" (changed)="doneSelectionChanged($event)" />
           </th>
           <th scope="col">Video</th>
-          <th scope="col">File Size</th>
+          <th scope="col">Dateigröße</th>
           <th scope="col" style="width: 8rem;"></th>
         </tr>
       </thead>
@@ -359,7 +358,7 @@
                   <span><br>{{download.value.msg}}</span>
                 }
                 @if (download.value.error) {
-                  <span><br>Error: {{download.value.error}}</span>
+                  <span><br>Fehler: {{download.value.error}}</span>
                 }
               }</span>
             </td>
@@ -389,32 +388,8 @@
 
 <footer class="footer navbar-dark bg-dark py-3 mt-5">
   <div class="container text-center">
-    @if (ytDlpVersion && metubeVersion) {
-      <div class="footer-content">
-        <div class="version-item">
-          <span class="version-label">yt-dlp</span>
-          <span class="version-value">{{ytDlpVersion}}</span>
-        </div>
-        <div class="version-separator"></div>
-        <div class="version-item">
-          <span class="version-label">MeTube</span>
-          <span class="version-value">{{metubeVersion}}</span>
-        </div>
-        <div class="version-separator"></div>
-        @if (ytDlpOptionsUpdateTime) {
-          <div class="version-item">
-            <span class="version-label">yt-dlp-options</span>
-            <span class="version-value">{{ytDlpOptionsUpdateTime}}</span>
-          </div>
-        }
-        @if (ytDlpOptionsUpdateTime) {
-          <div class="version-separator"></div>
-        }
-        <a href="https://github.com/alexta69/metube" target="_blank" class="github-link">
-          <fa-icon [icon]="faGithub" />
-          <span>GitHub</span>
-        </a>
-      </div>
-    }
+    <div class="footer-content">
+      Created by sHARPPY
+    </div>
   </div>
 </footer>

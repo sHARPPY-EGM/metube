@@ -5,8 +5,8 @@
     --purple-primary: #9333EA
     --purple-primary-dark: #7c3aed
     --purple-primary-light: #a855f7
-    --purple-bg-dark: #1a0a2e
-    --purple-bg-darker: #0a0a0f
+    --purple-bg-dark: #0a0a0f
+    --purple-bg-darker: #000000
     --purple-text-primary: #ffffff
     --purple-text-secondary: #e0e0e0
     --purple-border: rgba(147, 51, 234, 0.3)
@@ -24,7 +24,7 @@
     --bs-dark-text-emphasis: #ffffff
     --bs-secondary: #6c757d
     --bs-secondary-rgb: 108, 117, 125
-    --bs-body-bg: #0a0a0f
+    --bs-body-bg: #000000
     --bs-body-color: #ffffff
     --bs-body-color-rgb: 255, 255, 255
     --bs-border-color: rgba(147, 51, 234, 0.2)
@@ -36,18 +36,18 @@
     --bs-info: #3b82f6
 
 html[data-bs-theme="dark"]
-    background: linear-gradient(180deg, #1a0a2e 0%, #0a0a0f 100%)
+    background: #000000
     min-height: 100vh
 
 body
-    background: linear-gradient(180deg, #1a0a2e 0%, #0a0a0f 100%)
+    background: #000000
     background-attachment: fixed
     color: var(--purple-text-primary)
     min-height: 100vh
 
 .navbar
-    background-color: var(--purple-bg-dark) !important
-    border-bottom: 1px solid var(--purple-border)
+    background-color: #000000 !important
+    border-bottom: 1px solid rgba(147, 51, 234, 0.2)
     backdrop-filter: blur(10px)
 
     .navbar-brand
@@ -119,13 +119,13 @@ body
 
 /* Form Controls */
 .form-control, .form-select
-    background-color: var(--purple-bg-dark)
+    background-color: rgba(10, 10, 15, 0.8)
     border-color: var(--purple-border)
     color: var(--purple-text-primary)
     transition: all 0.3s ease
 
     &:focus
-        background-color: var(--purple-bg-dark)
+        background-color: rgba(10, 10, 15, 0.8)
         border-color: var(--purple-primary)
         color: var(--purple-text-primary)
         box-shadow: 0 0 0 0.2rem rgba(147, 51, 234, 0.25)
@@ -134,21 +134,21 @@ body
         color: rgba(224, 224, 224, 0.5)
 
     &:disabled
-        background-color: rgba(26, 10, 46, 0.5)
+        background-color: rgba(10, 10, 15, 0.5)
         opacity: 0.6
 
 .input-group-text
-    background-color: var(--purple-bg-dark)
+    background-color: rgba(10, 10, 15, 0.8)
     border-color: var(--purple-border)
     color: var(--purple-text-secondary)
 
 /* Cards */
 .card
-    background-color: var(--purple-bg-dark)
+    background-color: rgba(10, 10, 15, 0.8)
     border-color: var(--purple-border)
 
 .card-body
-    background-color: var(--purple-bg-dark)
+    background-color: rgba(10, 10, 15, 0.8)
 
 /* Tables */
 .table
@@ -183,7 +183,7 @@ a
 
 /* Modal */
 .modal-content
-    background-color: var(--purple-bg-dark)
+    background-color: rgba(10, 10, 15, 0.95)
     border-color: var(--purple-border)
 
 .modal-header
@@ -197,7 +197,7 @@ a
 
 /* Dropdown */
 .dropdown-menu
-    background-color: var(--purple-bg-dark)
+    background-color: rgba(10, 10, 15, 0.95)
     border-color: var(--purple-border)
 
 .dropdown-item
@@ -213,11 +213,11 @@ a
 
 /* Alert */
 .alert
-    background-color: var(--purple-bg-dark)
+    background-color: rgba(10, 10, 15, 0.8)
     border-color: var(--purple-border)
     color: var(--purple-text-primary)
 
 /* Footer */
 .footer
-    background: linear-gradient(to bottom, rgba(26, 10, 46, 0.8), rgba(10, 10, 15, 0.9)) !important
-    border-top: 1px solid var(--purple-border)
+    background: #000000 !important
+    border-top: 1px solid rgba(147, 51, 234, 0.2)

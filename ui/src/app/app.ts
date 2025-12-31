@@ -194,7 +194,7 @@ export class App implements AfterViewInit, OnInit {
           const date = new Date(data['update_time'] * 1000);
           this.ytDlpOptionsUpdateTime=date.toLocaleString();
         }else{
-          alert("Error reload yt-dlp options: "+data['msg']);
+          alert("Fehler beim Neuladen der yt-dlp Optionen: "+data['msg']);
         }
       }
     });
@@ -258,7 +258,7 @@ export class App implements AfterViewInit, OnInit {
     this.addInProgress = true;
     this.downloads.add(url, quality, format, folder, customNamePrefix, playlistStrictMode, playlistItemLimit, autoStart).subscribe((status: Status) => {
       if (status.status === 'error') {
-        alert(`Error adding URL: ${status.msg}`);
+        alert(`Fehler beim Hinzufügen der URL: ${status.msg}`);
       } else {
         this.addUrl = '';
       }
@@ -375,34 +375,34 @@ export class App implements AfterViewInit, OnInit {
       .map(url => url.trim())
       .filter(url => url.length > 0);
     if (urls.length === 0) {
-      alert('No valid URLs found.');
+      alert('Keine gültigen URLs gefunden.');
       return;
     }
     this.importInProgress = true;
     this.cancelImportFlag = false;
-    this.batchImportStatus = `Starting to import ${urls.length} URLs...`;
+    this.batchImportStatus = `Importiere ${urls.length} URLs...`;
     let index = 0;
     const delayBetween = 1000;
     const processNext = () => {
       if (this.cancelImportFlag) {
-        this.batchImportStatus = `Import cancelled after ${index} of ${urls.length} URLs.`;
+        this.batchImportStatus = `Import nach ${index} von ${urls.length} URLs abgebrochen.`;
         this.importInProgress = false;
         return;
       }
       if (index >= urls.length) {
-        this.batchImportStatus = `Finished importing ${urls.length} URLs.`;
+        this.batchImportStatus = `Import von ${urls.length} URLs abgeschlossen.`;
         this.importInProgress = false;
         return;
       }
       const url = urls[index];
-      this.batchImportStatus = `Importing URL ${index + 1} of ${urls.length}: ${url}`;
+      this.batchImportStatus = `Importiere URL ${index + 1} von ${urls.length}: ${url}`;
       // Now pass the selected quality, format, folder, etc. to the add() method
       this.downloads.add(url, this.quality, this.format, this.folder, this.customNamePrefix,
         this.playlistStrictMode, this.playlistItemLimit, this.autoStart)
         .subscribe({
           next: (status: Status) => {
             if (status.status === 'error') {
-              alert(`Error adding URL ${url}: ${status.msg}`);
+              alert(`Fehler beim Hinzufügen der URL ${url}: ${status.msg}`);
             }
             index++;
             setTimeout(processNext, delayBetween);
@@ -421,7 +421,7 @@ export class App implements AfterViewInit, OnInit {
   cancelBatchImport(): void {
     if (this.importInProgress) {
       this.cancelImportFlag = true;
-      this.batchImportStatus += ' Cancelling...';
+      this.batchImportStatus += ' Wird abgebrochen...';
     }
   }
 
@@ -444,7 +444,7 @@ export class App implements AfterViewInit, OnInit {
       ];
     }
     if (!urls.length) {
-      alert('No URLs found for the selected filter.');
+      alert('Keine URLs für den ausgewählten Filter gefunden.');
       return;
     }
     const content = urls.join('\n');
@@ -475,13 +475,13 @@ export class App implements AfterViewInit, OnInit {
       ];
     }
     if (!urls.length) {
-      alert('No URLs found for the selected filter.');
+      alert('Keine URLs für den ausgewählten Filter gefunden.');
       return;
     }
     const content = urls.join('\n');
     navigator.clipboard.writeText(content)
-      .then(() => alert('URLs copied to clipboard.'))
-      .catch(() => alert('Failed to copy URLs.'));
+      .then(() => alert('URLs in die Zwischenablage kopiert.'))
+      .catch(() => alert('URLs konnten nicht kopiert werden.'));
   }
 
   fetchVersionInfo(): void {
