@@ -216,8 +216,11 @@ async def auth_middleware(request, handler):
     # Check if route is public
     is_public = any(path.startswith(route) for route in public_routes)
     
-    # Static files (download, audio_download, UI assets)
-    is_static = path.startswith('/download/') or path.startswith('/audio_download/') or path.startswith('/assets/')
+    # Static files (download, audio_download, UI assets, and static file extensions)
+    # Check if it's a static file by extension (JS, CSS, images, fonts, etc.)
+    static_extensions = ('.js', '.css', '.ico', '.png', '.jpg', '.jpeg', '.gif', '.svg', '.woff', '.woff2', '.ttf', '.eot', '.json', '.webmanifest', '.map')
+    is_static_file = any(path.lower().endswith(ext) for ext in static_extensions)
+    is_static = path.startswith('/download/') or path.startswith('/audio_download/') or path.startswith('/assets/') or is_static_file
     
     # Setup/login pages
     is_auth_page = path in ['/setup', '/login', '/admin'] or path == '/'
@@ -624,6 +627,24 @@ async def api_admin_update_settings(request):
 @routes.get(config.URL_PREFIX + 'setup')
 async def setup_page(request):
     """Setup page for initial admin account creation."""
+    # Check if this is a request for a static file (e.g., /setup/main.js should be /main.js)
+    path = request.path
+    url_prefix = config.URL_PREFIX.rstrip('/')
+    if path.startswith(url_prefix):
+        path = path[len(url_prefix):]
+    if not path.startswith('/'):
+        path = '/' + path
+    
+    # If it's not exactly /setup, check if it's a static file request
+    # For paths like /setup/main.js, try to serve /main.js instead
+    if path != '/setup' and path.startswith('/setup/'):
+        # Remove /setup/ prefix and try to serve the file from root
+        file_path = path[len('/setup'):]
+        static_file_path = os.path.join(config.BASE_DIR, 'ui/dist/metube/browser', file_path.lstrip('/'))
+        if os.path.isfile(static_file_path):
+            return web.FileResponse(static_file_path)
+        raise web.HTTPNotFound()
+    
     if auth_manager.is_setup_complete():
         return web.HTTPFound(config.URL_PREFIX.rstrip('/') + '/')
     return web.FileResponse(os.path.join(config.BASE_DIR, 'ui/dist/metube/browser/index.html'))
@@ -631,6 +652,21 @@ async def setup_page(request):
 @routes.get(config.URL_PREFIX + 'login')
 async def login_page(request):
     """Login page for site password."""
+    path = request.path
+    url_prefix = config.URL_PREFIX.rstrip('/')
+    if path.startswith(url_prefix):
+        path = path[len(url_prefix):]
+    if not path.startswith('/'):
+        path = '/' + path
+    
+    # If it's not exactly /login, check if it's a static file request
+    if path != '/login' and path.startswith('/login/'):
+        file_path = path[len('/login'):]
+        static_file_path = os.path.join(config.BASE_DIR, 'ui/dist/metube/browser', file_path.lstrip('/'))
+        if os.path.isfile(static_file_path):
+            return web.FileResponse(static_file_path)
+        raise web.HTTPNotFound()
+    
     if not auth_manager.is_setup_complete():
         return web.HTTPFound(config.URL_PREFIX.rstrip('/') + '/setup')
     
@@ -646,6 +682,21 @@ async def login_page(request):
 @routes.get(config.URL_PREFIX + 'admin')
 async def admin_page(request):
     """Admin panel page."""
+    path = request.path
+    url_prefix = config.URL_PREFIX.rstrip('/')
+    if path.startswith(url_prefix):
+        path = path[len(url_prefix):]
+    if not path.startswith('/'):
+        path = '/' + path
+    
+    # If it's not exactly /admin, check if it's a static file request
+    if path != '/admin' and path.startswith('/admin/'):
+        file_path = path[len('/admin'):]
+        static_file_path = os.path.join(config.BASE_DIR, 'ui/dist/metube/browser', file_path.lstrip('/'))
+        if os.path.isfile(static_file_path):
+            return web.FileResponse(static_file_path)
+        raise web.HTTPNotFound()
+    
     if not auth_manager.is_setup_complete():
         return web.HTTPFound(config.URL_PREFIX.rstrip('/') + '/setup')
     
