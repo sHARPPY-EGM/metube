@@ -279,6 +279,9 @@ class DownloadQueue:
         if download.canceled:
             log.info(f"Download {download.info.title} was canceled, skipping start.")
             return
+        if self.stop_flag:
+            log.info(f"Stop flag is set, skipping start of {download.info.title}.")
+            return
         if self.config.DOWNLOAD_MODE == 'sequential':
             async with self.seq_lock:
                 log.info("Starting sequential download.")
@@ -302,10 +305,29 @@ class DownloadQueue:
         if download.canceled:
             log.info(f"Download {download.info.title} is canceled; skipping start.")
             return
+        if self.stop_flag:
+            log.info(f"Stop flag is set, skipping download of {download.info.title}.")
+            download.cancel()
+            return
         await download.start(self.notifier)
         self._post_download_cleanup(download)
 
     def _post_download_cleanup(self, download):
+        # If download was canceled, don't add to done list
+        if download.canceled:
+            log.info(f"Download {download.info.title} was canceled, cleaning up without adding to done list")
+            download.close()
+            if self.queue.exists(download.info.url):
+                self.queue.delete(download.info.url)
+                asyncio.create_task(self.notifier.canceled(download.info.url))
+            # Clean up temp file if exists
+            if download.tmpfilename and os.path.isfile(download.tmpfilename):
+                try:
+                    os.remove(download.tmpfilename)
+                except:
+                    pass
+            return
+        
         if download.info.status != 'finished':
             if download.tmpfilename and os.path.isfile(download.tmpfilename):
                 try:
@@ -438,6 +460,17 @@ class DownloadQueue:
         return {'status': 'error', 'msg': f'Unsupported resource "{etype}"'}
 
     async def add(self, url, quality, format, folder, custom_name_prefix, playlist_strict_mode, playlist_item_limit, auto_start=True, download_subtitles=False, download_thumbnails=True, already=None):
+        # If this is a new top-level request (not part of playlist processing), reset stop flag
+        if already is None or len(already) == 0:
+            if self.stop_flag:
+                log.info('New download request received, resetting stop flag')
+            self.stop_flag = False
+        
+        # Check stop flag at the very beginning (after potential reset)
+        if self.stop_flag:
+            log.info(f'Stop flag is set, rejecting add request for {url}')
+            return {'status': 'ok', 'msg': 'Stopped by user'}
+        
         log.info(f'adding {url}: {quality=} {format=} {already=} {folder=} {custom_name_prefix=} {playlist_strict_mode=} {playlist_item_limit=} {auto_start=} {download_subtitles=} {download_thumbnails=}')
         already = set() if already is None else already
         if url in already:
@@ -449,6 +482,12 @@ class DownloadQueue:
             entry = await asyncio.get_running_loop().run_in_executor(None, self.__extract_info, url, playlist_strict_mode)
         except yt_dlp.utils.YoutubeDLError as exc:
             return {'status': 'error', 'msg': str(exc)}
+        
+        # Check stop flag again after extraction (might have been set during extraction)
+        if self.stop_flag:
+            log.info(f'Stop flag was set during extraction, aborting add for {url}')
+            return {'status': 'ok', 'msg': 'Stopped by user'}
+        
         return await self.__add_entry(entry, quality, format, folder, custom_name_prefix, playlist_strict_mode, playlist_item_limit, auto_start, download_subtitles, download_thumbnails, already)
 
     async def start_pending(self, ids):
@@ -481,26 +520,29 @@ class DownloadQueue:
     async def cancel_all(self):
         """Cancel all downloads and stop any ongoing playlist processing."""
         log.info('Canceling all downloads and setting stop flag')
-        # Set stop flag to prevent new items from being added
+        # Set stop flag FIRST to prevent any new items from being added
         self.stop_flag = True
         
-        # Cancel all items in queue
+        # Cancel all active downloads in queue (these are the ones actually downloading)
+        canceled_count = 0
         for id in list(self.queue.dict.keys()):
-            if self.queue.get(id).started():
-                self.queue.get(id).cancel()
-            else:
-                self.queue.delete(id)
-                await self.notifier.canceled(id)
+            download = self.queue.get(id)
+            if download.started():
+                log.info(f'Canceling active download: {download.info.title}')
+                download.cancel()
+                canceled_count += 1
+            # Delete from queue (whether started or not)
+            self.queue.delete(id)
+            await self.notifier.canceled(id)
         
         # Cancel all pending items
         for id in list(self.pending.dict.keys()):
             self.pending.delete(id)
             await self.notifier.canceled(id)
         
-        # Reset stop flag after a short delay to allow new downloads
-        await asyncio.sleep(0.5)
-        self.stop_flag = False
-        log.info('Stop flag reset, ready for new downloads')
+        log.info(f'Canceled all downloads: {canceled_count} active downloads stopped, queue cleared')
+        # DO NOT reset stop flag here - it will be reset when user starts a new download
+        # This ensures no background processing continues
         
         return {'status': 'ok'}
 
