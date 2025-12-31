@@ -341,9 +341,18 @@ body
 // Tooltips
 .tooltip
     .tooltip-inner
-        background: $bg-elevated
-        border-radius: 6px
-        padding: 0.5rem 0.75rem
+        background: $bg-secondary
+        border: 1px solid $purple-border
+        border-radius: 8px
+        padding: 0.75rem 1rem
+        color: $text-primary
+        font-size: 0.875rem
+        max-width: 300px
+        text-align: left
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4)
+
+    .tooltip-arrow
+        display: none !important
 
 // Scrollbar
 ::-webkit-scrollbar

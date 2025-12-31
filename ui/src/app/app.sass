@@ -204,45 +204,58 @@ button.add-url
             margin-right: 0.25rem
 
 // Table Checkbox Styling (Master/Slave checkboxes)
-.table .form-check,
-th .form-check,
-td .form-check
-    margin: 0
-    padding: 0
-    min-height: auto
-    display: flex
-    align-items: center
-    justify-content: center
+::ng-deep
+    .table,
+    th,
+    td
+        .form-check
+            margin: 0 !important
+            padding: 0 !important
+            min-height: auto !important
+            display: flex !important
+            align-items: center !important
+            justify-content: center !important
 
-    .form-check-input
-        width: 16px
-        height: 16px
-        margin: 0
-        border-radius: 3px
-        background-color: $bg-tertiary
-        border: 2px solid rgba(255, 255, 255, 0.25)
-        cursor: pointer
-        transition: all $transition-fast
-        flex-shrink: 0
+        .form-check-input[type="checkbox"]
+            width: 18px !important
+            height: 18px !important
+            margin: 0 !important
+            border-radius: 4px !important
+            background-color: $bg-tertiary !important
+            border: 2px solid rgba(255, 255, 255, 0.3) !important
+            cursor: pointer !important
+            transition: all $transition-fast !important
+            flex-shrink: 0 !important
+            appearance: none !important
+            -webkit-appearance: none !important
 
-        &:hover
-            background-color: $bg-elevated
-            border-color: rgba(124, 58, 237, 0.5)
+            &:hover
+                background-color: $bg-elevated !important
+                border-color: $purple-accent !important
+                transform: scale(1.05)
 
-        &:checked
-            background-color: $purple-accent
-            border-color: $purple-accent
+            &:checked
+                background-color: $purple-accent !important
+                border-color: $purple-accent !important
+                background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e") !important
+                background-size: 12px !important
+                background-position: center !important
+                background-repeat: no-repeat !important
 
-        &:focus
-            box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.25)
-            outline: none
+            &:focus
+                box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.3) !important
+                outline: none !important
 
-        &:indeterminate
-            background-color: $purple-accent
-            border-color: $purple-accent
+            &:indeterminate
+                background-color: $purple-accent !important
+                border-color: $purple-accent !important
+                background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M6 10h8'/%3e%3c/svg%3e") !important
+                background-size: 12px !important
+                background-position: center !important
+                background-repeat: no-repeat !important
 
-    .form-check-label
-        display: none
+        .form-check-label
+            display: none !important
 
 // Section Headers
 .metube-section-header
@@ -567,17 +580,22 @@ hr
 // Work in Progress badge
 .wip-badge
     color: $purple-accent
-    font-size: 0.8rem
+    font-size: 0.85rem
     font-weight: 600
-    margin-left: 0.25rem
+    margin-left: 0.5rem
 
 // Disabled option styling
 .disabled-option
-    opacity: 0.6
-    cursor: not-allowed
-
     .form-check-input
+        opacity: 0.4
         cursor: not-allowed
 
     .form-check-label
         cursor: not-allowed
+        
+        // Keep the icon and WIP badge visible
+        fa-icon
+            opacity: 0.5
+        
+        .wip-badge
+            opacity: 1
