@@ -159,37 +159,58 @@ export class App implements AfterViewInit, OnInit {
     
     if (path === 'setup' || path.startsWith('setup')) {
       this.currentView = 'setup';
+      this.cdr.detectChanges();
       return;
     }
     
     if (path === 'login' || path.startsWith('login')) {
       this.currentView = 'login';
+      this.cdr.detectChanges();
       return;
     }
     
     if (path === 'admin' || path.startsWith('admin')) {
       this.currentView = 'admin';
+      this.cdr.detectChanges();
       return;
     }
     
     // Check if setup is needed
-    this.authService.isSetupNeeded().subscribe(setupNeeded => {
-      if (setupNeeded) {
-        this.currentView = 'setup';
-        window.history.pushState({}, '', this.getUrlPrefix() + 'setup');
-        return;
-      }
-      
-      // Check authentication status
-      this.authService.getAuthStatus().subscribe(status => {
-        if (status.password_required && !status.authenticated) {
-          this.currentView = 'login';
-          window.history.pushState({}, '', this.getUrlPrefix() + 'login');
-        } else {
-          this.currentView = 'main';
-          this.isAuthenticated = status.authenticated;
+    this.authService.isSetupNeeded().subscribe({
+      next: (setupNeeded) => {
+        if (setupNeeded) {
+          this.currentView = 'setup';
+          window.history.pushState({}, '', this.getUrlPrefix() + 'setup');
+          this.cdr.detectChanges();
+          return;
         }
-      });
+        
+        // Check authentication status
+        this.authService.getAuthStatus().subscribe({
+          next: (status) => {
+            if (status.password_required && !status.authenticated) {
+              this.currentView = 'login';
+              window.history.pushState({}, '', this.getUrlPrefix() + 'login');
+            } else {
+              this.currentView = 'main';
+              this.isAuthenticated = status.authenticated;
+            }
+            this.cdr.detectChanges();
+          },
+          error: (err) => {
+            // On error, default to main view
+            console.error('Error getting auth status:', err);
+            this.currentView = 'main';
+            this.cdr.detectChanges();
+          }
+        });
+      },
+      error: (err) => {
+        // On error, assume setup is needed
+        console.error('Error checking setup status:', err);
+        this.currentView = 'setup';
+        this.cdr.detectChanges();
+      }
     });
   }
   

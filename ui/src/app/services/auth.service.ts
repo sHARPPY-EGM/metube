@@ -4,6 +4,7 @@ import { Observable, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 
 export interface AuthStatus {
+  setup_needed: boolean;
   authenticated: boolean;
   password_required: boolean;
   has_site_password: boolean;
@@ -34,6 +35,7 @@ export class AuthService {
   getAuthStatus(): Observable<AuthStatus> {
     return this.http.get<AuthStatus>('api/auth/status').pipe(
       catchError(() => of({
+        setup_needed: true,
         authenticated: false,
         password_required: false,
         has_site_password: false
