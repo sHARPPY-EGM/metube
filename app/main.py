@@ -18,6 +18,10 @@ from watchfiles import DefaultFilter, Change, awatch
 
 from ytdl import DownloadQueueNotifier, DownloadQueue
 from yt_dlp.version import __version__ as yt_dlp_version
+from auth import AuthManager
+import aiohttp_session
+from aiohttp_session.cookie_storage import EncryptedCookieStorage
+import secrets
 
 log = logging.getLogger('main')
 
@@ -153,10 +157,102 @@ class ObjectSerializer(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 serializer = ObjectSerializer()
+
+# Initialize authentication manager
+auth_manager = AuthManager(config.STATE_DIR)
+
+# Generate secret key for session encryption (persist it)
+session_key_file = os.path.join(config.STATE_DIR, '.session_key')
+if os.path.exists(session_key_file):
+    with open(session_key_file, 'rb') as f:
+        session_key = f.read()
+else:
+    session_key = secrets.token_bytes(32)
+    Path(config.STATE_DIR).mkdir(parents=True, exist_ok=True)
+    with open(session_key_file, 'wb') as f:
+        f.write(session_key)
+    try:
+        os.chmod(session_key_file, 0o600)
+    except Exception:
+        pass
+
 app = web.Application()
+# Add session middleware
+aiohttp_session.setup(app, EncryptedCookieStorage(session_key, cookie_name='metube_session', 
+                                                   max_age=60*60*24*7,  # 7 days
+                                                   httponly=True,
+                                                   samesite='Strict',
+                                                   secure=config.HTTPS))
+
 sio = socketio.AsyncServer(cors_allowed_origins='*')
 sio.attach(app, socketio_path=config.URL_PREFIX + 'socket.io')
 routes = web.RouteTableDef()
+
+# Authentication middleware
+@web.middleware
+async def auth_middleware(request, handler):
+    """Middleware to handle authentication and route protection."""
+    path = request.path
+    url_prefix = config.URL_PREFIX.rstrip('/')
+    
+    # Remove URL prefix from path for checking
+    if path.startswith(url_prefix):
+        path = path[len(url_prefix):]
+    if not path.startswith('/'):
+        path = '/' + path
+    
+    # Public routes that don't require authentication
+    public_routes = [
+        '/api/setup',
+        '/api/login',
+        '/api/admin/login',
+        '/api/setup/status',
+        '/api/auth/status',
+        '/socket.io/',
+        '/version',
+        '/robots.txt'
+    ]
+    
+    # Check if route is public
+    is_public = any(path.startswith(route) for route in public_routes)
+    
+    # Static files (download, audio_download, UI assets)
+    is_static = path.startswith('/download/') or path.startswith('/audio_download/') or path.startswith('/assets/')
+    
+    # Setup/login pages
+    is_auth_page = path in ['/setup', '/login', '/admin'] or path == '/'
+    
+    # If setup is not complete, allow only setup route
+    if not auth_manager.is_setup_complete():
+        if path != '/setup' and not path.startswith('/api/setup') and not is_public and not is_static:
+            if request.headers.get('Accept', '').startswith('application/json'):
+                return web.json_response({'error': 'Setup required'}, status=403)
+            # Redirect to setup page for HTML requests
+            return web.HTTPFound(config.URL_PREFIX.rstrip('/') + '/setup')
+    
+    # If setup is complete but password is required
+    if auth_manager.is_setup_complete() and auth_manager.is_password_required() and not is_public and not is_static:
+        session = await aiohttp_session.get_session(request)
+        
+        # Check if user is authenticated
+        if not session.get('authenticated', False):
+            if is_auth_page and path != '/login':
+                # Redirect to login if accessing main page
+                if path == '/' or path == '':
+                    return web.HTTPFound(config.URL_PREFIX.rstrip('/') + '/login')
+                # Allow access to auth pages
+                return await handler(request)
+            
+            # For API requests, return 401
+            if request.headers.get('Accept', '').startswith('application/json'):
+                return web.json_response({'error': 'Authentication required'}, status=401)
+            
+            # For page requests, redirect to login
+            return web.HTTPFound(config.URL_PREFIX.rstrip('/') + '/login')
+    
+    return await handler(request)
+
+app.middlewares.append(auth_middleware)
 
 class Notifier(DownloadQueueNotifier):
     async def added(self, dl):
@@ -353,11 +449,50 @@ def get_custom_dirs():
     }
 
 @routes.get(config.URL_PREFIX)
-def index(request):
+async def index(request):
+    # Check if setup is needed
+    if not auth_manager.is_setup_complete():
+        return web.HTTPFound(config.URL_PREFIX.rstrip('/') + '/setup')
+    
+    # Check if password is required and user is not authenticated
+    session = await aiohttp_session.get_session(request)
+    if auth_manager.is_password_required() and not session.get('authenticated', False):
+        return web.HTTPFound(config.URL_PREFIX.rstrip('/') + '/login')
+    
     response = web.FileResponse(os.path.join(config.BASE_DIR, 'ui/dist/metube/browser/index.html'))
     if 'metube_theme' not in request.cookies:
         response.set_cookie('metube_theme', config.DEFAULT_THEME)
     return response
+
+@routes.get(config.URL_PREFIX + 'setup')
+async def setup_page(request):
+    """Setup page for initial admin account creation."""
+    if auth_manager.is_setup_complete():
+        return web.HTTPFound(config.URL_PREFIX.rstrip('/') + '/')
+    return web.FileResponse(os.path.join(config.BASE_DIR, 'ui/dist/metube/browser/index.html'))
+
+@routes.get(config.URL_PREFIX + 'login')
+async def login_page(request):
+    """Login page for site password."""
+    if not auth_manager.is_setup_complete():
+        return web.HTTPFound(config.URL_PREFIX.rstrip('/') + '/setup')
+    
+    if not auth_manager.is_password_required():
+        return web.HTTPFound(config.URL_PREFIX.rstrip('/') + '/')
+    
+    session = await aiohttp_session.get_session(request)
+    if session.get('authenticated', False):
+        return web.HTTPFound(config.URL_PREFIX.rstrip('/') + '/')
+    
+    return web.FileResponse(os.path.join(config.BASE_DIR, 'ui/dist/metube/browser/index.html'))
+
+@routes.get(config.URL_PREFIX + 'admin')
+async def admin_page(request):
+    """Admin panel page."""
+    if not auth_manager.is_setup_complete():
+        return web.HTTPFound(config.URL_PREFIX.rstrip('/') + '/setup')
+    
+    return web.FileResponse(os.path.join(config.BASE_DIR, 'ui/dist/metube/browser/index.html'))
 
 @routes.get(config.URL_PREFIX + 'robots.txt')
 def robots(request):

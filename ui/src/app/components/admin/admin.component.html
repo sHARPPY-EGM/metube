@@ -1,0 +1,213 @@
+<div class="admin-container">
+  <div class="admin-card">
+    <h1 class="admin-title">
+      <fa-icon [icon]="faCog" class="me-2" />
+      Admin-Panel
+    </h1>
+    
+    @if (!isAdminAuthenticated) {
+      <!-- Admin Login -->
+      <div class="admin-section">
+        <h2 class="section-title">Admin-Anmeldung</h2>
+        <form (ngSubmit)="onAdminLogin()" #adminLoginForm="ngForm">
+          <div class="form-group">
+            <label for="adminUsername" class="form-label">Benutzername</label>
+            <input
+              type="text"
+              id="adminUsername"
+              name="adminUsername"
+              class="form-control"
+              [(ngModel)]="adminUsername"
+              [disabled]="adminLoginLoading"
+              required
+              autocomplete="username">
+          </div>
+          
+          <div class="form-group">
+            <label for="adminPassword" class="form-label">Passwort</label>
+            <input
+              type="password"
+              id="adminPassword"
+              name="adminPassword"
+              class="form-control"
+              [(ngModel)]="adminPassword"
+              [disabled]="adminLoginLoading"
+              required
+              autocomplete="current-password">
+          </div>
+          
+          @if (adminLoginError) {
+            <div class="alert alert-danger">{{ adminLoginError }}</div>
+          }
+          
+          <button
+            type="submit"
+            class="btn btn-primary w-100"
+            [disabled]="adminLoginLoading || !adminLoginForm.valid">
+            @if (adminLoginLoading) {
+              <span class="spinner-border spinner-border-sm me-2"></span>
+            }
+            Anmelden
+          </button>
+        </form>
+      </div>
+    } @else {
+      <!-- Admin Settings -->
+      <div class="admin-section">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h2 class="section-title mb-0">Einstellungen</h2>
+          <button class="btn btn-link text-secondary" (click)="onAdminLogout()">
+            Abmelden
+          </button>
+        </div>
+        
+        <!-- Password Requirement Toggle -->
+        <div class="setting-item">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <label class="setting-label">
+                <fa-icon [icon]="settings.password_required ? faLock : faUnlock" class="me-2" />
+                Passwort für Hauptseite erforderlich
+              </label>
+              <p class="setting-description">
+                Wenn aktiviert, müssen Benutzer ein Passwort eingeben, um auf die Hauptseite zuzugreifen.
+              </p>
+            </div>
+            <div class="form-check form-switch">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                role="switch"
+                [checked]="settings.password_required"
+                (change)="togglePasswordRequired()"
+                id="passwordRequired">
+              <label class="form-check-label" for="passwordRequired"></label>
+            </div>
+          </div>
+        </div>
+        
+        <hr class="divider">
+        
+        <!-- Site Password Management -->
+        <div class="setting-item">
+          <h3 class="setting-subtitle">Hauptseiten-Passwort</h3>
+          <p class="setting-description">
+            @if (settings.has_site_password) {
+              Ein Passwort ist derzeit gesetzt. Du kannst es ändern oder entfernen.
+            } @else {
+              Es ist noch kein Passwort gesetzt. Setze ein Passwort, um den Zugriff zu schützen.
+            }
+          </p>
+          
+          <form (ngSubmit)="onSetSitePassword()" #sitePasswordForm="ngForm">
+            <div class="form-group">
+              <label for="sitePassword" class="form-label">Neues Passwort</label>
+              <div class="input-group">
+                <input
+                  [type]="showSitePassword ? 'text' : 'password'"
+                  id="sitePassword"
+                  name="sitePassword"
+                  class="form-control"
+                  [(ngModel)]="sitePassword"
+                  [disabled]="sitePasswordLoading"
+                  [placeholder]="settings.has_site_password ? 'Leer lassen zum Entfernen' : 'Passwort eingeben'">
+                <button
+                  type="button"
+                  class="btn btn-outline-secondary"
+                  (click)="showSitePassword = !showSitePassword">
+                  <fa-icon [icon]="showSitePassword ? faEyeSlash : faEye" />
+                </button>
+              </div>
+            </div>
+            
+            @if (sitePassword) {
+              <div class="form-group">
+                <label for="sitePasswordConfirm" class="form-label">Passwort bestätigen</label>
+                <input
+                  type="password"
+                  id="sitePasswordConfirm"
+                  name="sitePasswordConfirm"
+                  class="form-control"
+                  [(ngModel)]="sitePasswordConfirm"
+                  [disabled]="sitePasswordLoading">
+              </div>
+            }
+            
+            @if (sitePasswordError) {
+              <div class="alert alert-danger">{{ sitePasswordError }}</div>
+            }
+            
+            <button
+              type="submit"
+              class="btn btn-primary"
+              [disabled]="sitePasswordLoading || (sitePassword && (!sitePasswordForm.valid || sitePassword !== sitePasswordConfirm))">
+              @if (sitePasswordLoading) {
+                <span class="spinner-border spinner-border-sm me-2"></span>
+              }
+              {{ settings.has_site_password ? (sitePassword ? 'Passwort ändern' : 'Passwort entfernen') : 'Passwort setzen' }}
+            </button>
+          </form>
+        </div>
+        
+        <hr class="divider">
+        
+        <!-- Admin Password Change -->
+        <div class="setting-item">
+          <h3 class="setting-subtitle">Admin-Passwort ändern</h3>
+          <p class="setting-description">
+            Ändere das Passwort für den Admin-Account.
+          </p>
+          
+          <form (ngSubmit)="onChangeAdminPassword()" #adminPasswordForm="ngForm">
+            <div class="form-group">
+              <label for="adminPasswordNew" class="form-label">Neues Passwort</label>
+              <div class="input-group">
+                <input
+                  [type]="showAdminPassword ? 'text' : 'password'"
+                  id="adminPasswordNew"
+                  name="adminPasswordNew"
+                  class="form-control"
+                  [(ngModel)]="adminPasswordNew"
+                  [disabled]="adminPasswordLoading"
+                  required>
+                <button
+                  type="button"
+                  class="btn btn-outline-secondary"
+                  (click)="showAdminPassword = !showAdminPassword">
+                  <fa-icon [icon]="showAdminPassword ? faEyeSlash : faEye" />
+                </button>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="adminPasswordNewConfirm" class="form-label">Passwort bestätigen</label>
+              <input
+                type="password"
+                id="adminPasswordNewConfirm"
+                name="adminPasswordNewConfirm"
+                class="form-control"
+                [(ngModel)]="adminPasswordNewConfirm"
+                [disabled]="adminPasswordLoading"
+                required>
+            </div>
+            
+            @if (adminPasswordError) {
+              <div class="alert alert-danger">{{ adminPasswordError }}</div>
+            }
+            
+            <button
+              type="submit"
+              class="btn btn-primary"
+              [disabled]="adminPasswordLoading || !adminPasswordForm.valid || adminPasswordNew !== adminPasswordNewConfirm">
+              @if (adminPasswordLoading) {
+                <span class="spinner-border spinner-border-sm me-2"></span>
+              }
+              Passwort ändern
+            </button>
+          </form>
+        </div>
+      </div>
+    }
+  </div>
+</div>
+

@@ -1,0 +1,199 @@
+@import '../../../styles.sass'
+
+.admin-container
+  padding: 2rem
+  min-height: 100vh
+  background: $bg-primary
+
+.admin-card
+  max-width: 700px
+  margin: 0 auto
+  background: $bg-secondary
+  border: 1px solid $purple-border
+  border-radius: $border-radius-lg
+  padding: 2.5rem
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3)
+
+.admin-title
+  color: $text-primary
+  font-size: 1.75rem
+  font-weight: 600
+  margin-bottom: 2rem
+  display: flex
+  align-items: center
+
+.admin-section
+  margin-bottom: 2rem
+
+.section-title
+  color: $text-primary
+  font-size: 1.25rem
+  font-weight: 600
+  margin-bottom: 1.5rem
+
+.setting-item
+  margin-bottom: 2rem
+
+.setting-subtitle
+  color: $text-primary
+  font-size: 1.1rem
+  font-weight: 600
+  margin-bottom: 0.5rem
+
+.setting-label
+  color: $text-primary
+  font-weight: 500
+  display: flex
+  align-items: center
+  margin-bottom: 0.25rem
+
+.setting-description
+  color: $text-secondary
+  font-size: 0.9rem
+  margin-bottom: 1rem
+
+.form-group
+  margin-bottom: 1.5rem
+
+.form-label
+  display: block
+  color: $text-primary
+  margin-bottom: 0.5rem
+  font-weight: 500
+  font-size: 0.9rem
+
+.form-control
+  width: 100%
+  padding: 0.75rem 1rem
+  background: $bg-tertiary
+  border: 2px solid rgba(255, 255, 255, 0.1)
+  border-radius: $border-radius-md
+  color: $text-primary
+  font-size: 1rem
+  transition: all $transition-fast
+
+  &:focus
+    outline: none
+    border-color: $purple-accent
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2)
+
+  &:disabled
+    opacity: 0.6
+    cursor: not-allowed
+
+.input-group
+  display: flex
+  gap: 0.5rem
+
+  .form-control
+    flex: 1
+
+  .btn
+    flex-shrink: 0
+
+.alert
+  padding: 0.75rem 1rem
+  border-radius: $border-radius-md
+  margin-bottom: 1rem
+
+.alert-danger
+  background: rgba(239, 68, 68, 0.1)
+  border: 1px solid rgba(239, 68, 68, 0.3)
+  color: #fca5a5
+
+.btn
+  padding: 0.75rem 1.5rem
+  border-radius: $border-radius-md
+  font-weight: 500
+  transition: all $transition-fast
+  border: none
+  cursor: pointer
+
+.btn-primary
+  background: $purple-accent
+  color: white
+
+  &:hover:not(:disabled)
+    background: $purple-accent-dark
+    transform: translateY(-1px)
+    box-shadow: 0 4px 8px rgba(124, 58, 237, 0.3)
+
+  &:disabled
+    opacity: 0.6
+    cursor: not-allowed
+    transform: none
+
+.btn-link
+  background: none
+  color: $text-secondary
+  padding: 0.5rem
+  text-decoration: none
+
+  &:hover
+    color: $text-primary
+
+.btn-outline-secondary
+  background: transparent
+  border: 2px solid rgba(255, 255, 255, 0.2)
+  color: $text-secondary
+
+  &:hover
+    border-color: $purple-accent
+    color: $purple-accent
+
+.w-100
+  width: 100%
+
+.spinner-border-sm
+  width: 1rem
+  height: 1rem
+  border-width: 0.15em
+
+.me-2
+  margin-right: 0.5rem
+
+.divider
+  border: none
+  border-top: 1px solid rgba(255, 255, 255, 0.1)
+  margin: 2rem 0
+
+.d-flex
+  display: flex
+
+.justify-content-between
+  justify-content: space-between
+
+.align-items-center
+  align-items: center
+
+.mb-0
+  margin-bottom: 0
+
+.mb-3
+  margin-bottom: 1rem
+
+.form-check
+  display: flex
+  align-items: center
+
+.form-switch
+  .form-check-input
+    width: 3rem
+    height: 1.5rem
+    cursor: pointer
+    background-color: $bg-tertiary
+    border: 2px solid rgba(255, 255, 255, 0.2)
+    border-radius: 1rem
+    transition: all $transition-fast
+
+    &:checked
+      background-color: $purple-accent
+      border-color: $purple-accent
+
+    &:focus
+      box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2)
+
+  .form-check-label
+    margin-left: 0.5rem
+    cursor: pointer
+

@@ -1,0 +1,104 @@
+@import '../../../styles.sass'
+
+.login-container
+  display: flex
+  align-items: center
+  justify-content: center
+  min-height: 100vh
+  padding: 2rem
+  background: $bg-primary
+
+.login-card
+  background: $bg-secondary
+  border: 1px solid $purple-border
+  border-radius: $border-radius-lg
+  padding: 2.5rem
+  width: 100%
+  max-width: 450px
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3)
+
+.login-title
+  color: $text-primary
+  font-size: 1.75rem
+  font-weight: 600
+  margin-bottom: 0.5rem
+  text-align: center
+
+.login-description
+  color: $text-secondary
+  text-align: center
+  margin-bottom: 2rem
+  font-size: 0.95rem
+
+.form-group
+  margin-bottom: 1.5rem
+
+.form-label
+  display: block
+  color: $text-primary
+  margin-bottom: 0.5rem
+  font-weight: 500
+  font-size: 0.9rem
+
+.form-control
+  width: 100%
+  padding: 0.75rem 1rem
+  background: $bg-tertiary
+  border: 2px solid rgba(255, 255, 255, 0.1)
+  border-radius: $border-radius-md
+  color: $text-primary
+  font-size: 1rem
+  transition: all $transition-fast
+
+  &:focus
+    outline: none
+    border-color: $purple-accent
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2)
+
+  &:disabled
+    opacity: 0.6
+    cursor: not-allowed
+
+.alert
+  padding: 0.75rem 1rem
+  border-radius: $border-radius-md
+  margin-bottom: 1.5rem
+
+.alert-danger
+  background: rgba(239, 68, 68, 0.1)
+  border: 1px solid rgba(239, 68, 68, 0.3)
+  color: #fca5a5
+
+.btn
+  padding: 0.75rem 1.5rem
+  border-radius: $border-radius-md
+  font-weight: 500
+  transition: all $transition-fast
+  border: none
+  cursor: pointer
+
+.btn-primary
+  background: $purple-accent
+  color: white
+
+  &:hover:not(:disabled)
+    background: $purple-accent-dark
+    transform: translateY(-1px)
+    box-shadow: 0 4px 8px rgba(124, 58, 237, 0.3)
+
+  &:disabled
+    opacity: 0.6
+    cursor: not-allowed
+    transform: none
+
+.w-100
+  width: 100%
+
+.spinner-border-sm
+  width: 1rem
+  height: 1rem
+  border-width: 0.15em
+
+.me-2
+  margin-right: 0.5rem
+

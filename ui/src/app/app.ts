@@ -11,8 +11,12 @@ import { faGithub } from '@fortawesome/free-brands-svg-icons';
 import { CookieService } from 'ngx-cookie-service';
 import { DownloadsService } from './services/downloads.service';
 import { Download, Status, Quality, Format, Formats, State } from './interfaces';
-import { EtaPipe, SpeedPipe, FileSizePipe } from './pipes';
+import { SpeedPipe, FileSizePipe } from './pipes';
 import { MasterCheckboxComponent , SlaveCheckboxComponent} from './components/';
+import { SetupComponent } from './components/setup/setup.component';
+import { LoginComponent } from './components/login/login.component';
+import { AdminComponent } from './components/admin/admin.component';
+import { AuthService } from './services/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -23,11 +27,13 @@ import { MasterCheckboxComponent , SlaveCheckboxComponent} from './components/';
         FontAwesomeModule,
         NgbModule,
         NgSelectModule,
-        EtaPipe,
-        SpeedPipe,
-        FileSizePipe,
+               SpeedPipe,
+               FileSizePipe,
         MasterCheckboxComponent,
         SlaveCheckboxComponent,
+        SetupComponent,
+        LoginComponent,
+        AdminComponent,
   ],
   templateUrl: './app.html',
   styleUrl: './app.sass',
@@ -37,6 +43,7 @@ export class App implements AfterViewInit, OnInit {
   private cookieService = inject(CookieService);
   private http = inject(HttpClient);
   private cdr = inject(ChangeDetectorRef);
+  private authService = inject(AuthService);
 
   addUrl!: string;
   formats: Format[] = Formats;
@@ -78,6 +85,14 @@ export class App implements AfterViewInit, OnInit {
   completedDownloads = 0;
   failedDownloads = 0;
   totalSpeed = 0;
+  
+  // Authentication state
+  currentView: 'main' | 'setup' | 'login' | 'admin' = 'main';
+  isAuthenticated = false;
+  
+  // Authentication state
+  currentView: 'main' | 'setup' | 'login' | 'admin' = 'main';
+  isAuthenticated = false;
 
   readonly queueMasterCheckbox = viewChild<MasterCheckboxComponent>('queueMasterCheckboxRef');
   readonly queueDelSelected = viewChild.required<ElementRef>('queueDelSelected');
@@ -105,6 +120,7 @@ export class App implements AfterViewInit, OnInit {
   faVolumeUp = faVolumeUp;
   faClosedCaptioning = faClosedCaptioning;
   faImage = faImage;
+  faCog = faCog;
 
   constructor() {
     this.format = this.cookieService.get('metube_format') || 'any';
@@ -138,6 +154,60 @@ export class App implements AfterViewInit, OnInit {
     this.customDirs$ = this.getMatchingCustomDir();
     // Set dark theme permanently
     document.documentElement.setAttribute('data-bs-theme', 'dark');
+    this.checkAuthAndRoute();
+  }
+  
+  checkAuthAndRoute() {
+    // Check current path
+    const path = window.location.pathname.replace(this.getUrlPrefix(), '').replace(/^\//, '') || '/';
+    
+    if (path === 'setup' || path.startsWith('setup')) {
+      this.currentView = 'setup';
+      return;
+    }
+    
+    if (path === 'login' || path.startsWith('login')) {
+      this.currentView = 'login';
+      return;
+    }
+    
+    if (path === 'admin' || path.startsWith('admin')) {
+      this.currentView = 'admin';
+      return;
+    }
+    
+    // Check if setup is needed
+    this.authService.isSetupNeeded().subscribe(setupNeeded => {
+      if (setupNeeded) {
+        this.currentView = 'setup';
+        window.history.pushState({}, '', this.getUrlPrefix() + 'setup');
+        return;
+      }
+      
+      // Check authentication status
+      this.authService.getAuthStatus().subscribe(status => {
+        if (status.password_required && !status.authenticated) {
+          this.currentView = 'login';
+          window.history.pushState({}, '', this.getUrlPrefix() + 'login');
+        } else {
+          this.currentView = 'main';
+          this.isAuthenticated = status.authenticated;
+        }
+      });
+    });
+  }
+  
+  getUrlPrefix(): string {
+    // Get URL prefix from current location
+    const path = window.location.pathname;
+    if (path === '/' || path === '') return '/';
+    // For now, assume no prefix (can be enhanced)
+    return '/';
+  }
+  
+  openAdminPanel() {
+    this.currentView = 'admin';
+    window.history.pushState({}, '', this.getUrlPrefix() + 'admin');
   }
 
   ngAfterViewInit() {

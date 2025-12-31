@@ -1,0 +1,64 @@
+<div class="setup-container">
+  <div class="setup-card">
+    <h1 class="setup-title">ORION Einrichtung</h1>
+    <p class="setup-description">Erstelle den initialen Admin-Account</p>
+    
+    <form (ngSubmit)="onSubmit()" #setupForm="ngForm">
+      <div class="form-group">
+        <label for="username" class="form-label">Benutzername</label>
+        <input
+          type="text"
+          id="username"
+          name="username"
+          class="form-control"
+          [(ngModel)]="username"
+          [disabled]="loading"
+          required
+          autocomplete="username">
+      </div>
+      
+      <div class="form-group">
+        <label for="password" class="form-label">Passwort</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          class="form-control"
+          [(ngModel)]="password"
+          [disabled]="loading"
+          required
+          autocomplete="new-password">
+      </div>
+      
+      <div class="form-group">
+        <label for="confirmPassword" class="form-label">Passwort bestätigen</label>
+        <input
+          type="password"
+          id="confirmPassword"
+          name="confirmPassword"
+          class="form-control"
+          [(ngModel)]="confirmPassword"
+          [disabled]="loading"
+          required
+          autocomplete="new-password">
+      </div>
+      
+      @if (error) {
+        <div class="alert alert-danger" role="alert">
+          {{ error }}
+        </div>
+      }
+      
+      <button
+        type="submit"
+        class="btn btn-primary w-100"
+        [disabled]="loading || !setupForm.valid">
+        @if (loading) {
+          <span class="spinner-border spinner-border-sm me-2"></span>
+        }
+        Admin-Account erstellen
+      </button>
+    </form>
+  </div>
+</div>
+

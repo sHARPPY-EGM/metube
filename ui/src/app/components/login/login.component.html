@@ -1,0 +1,39 @@
+<div class="login-container">
+  <div class="login-card">
+    <h1 class="login-title">ORION</h1>
+    <p class="login-description">Bitte Passwort eingeben</p>
+    
+    <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
+      <div class="form-group">
+        <label for="password" class="form-label">Passwort</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          class="form-control"
+          [(ngModel)]="password"
+          [disabled]="loading"
+          required
+          autocomplete="current-password"
+          (keydown.enter)="onSubmit()">
+      </div>
+      
+      @if (error) {
+        <div class="alert alert-danger" role="alert">
+          {{ error }}
+        </div>
+      }
+      
+      <button
+        type="submit"
+        class="btn btn-primary w-100"
+        [disabled]="loading || !loginForm.valid">
+        @if (loading) {
+          <span class="spinner-border spinner-border-sm me-2"></span>
+        }
+        Anmelden
+      </button>
+    </form>
+  </div>
+</div>
+
