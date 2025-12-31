@@ -43,11 +43,15 @@ class AuthManager:
     def _ensure_structure(self):
         """Ensure data structure has all required fields."""
         defaults = {
-            'admin_username_hash': None,
+            'admin_username': None,  # Store username in plain text (only one admin)
             'admin_password_hash': None,
             'site_password_hash': None,
             'password_required': False
         }
+        # Migrate from old format if needed
+        if 'admin_username_hash' in self.data and 'admin_username' not in self.data:
+            # Old format - we can't recover the username, so set to None
+            self.data['admin_username'] = None
         for key, default in defaults.items():
             if key not in self.data:
                 self.data[key] = default
@@ -83,7 +87,7 @@ class AuthManager:
 
     def is_setup_complete(self) -> bool:
         """Check if admin account has been created."""
-        return self.data['admin_username_hash'] is not None and self.data['admin_password_hash'] is not None
+        return self.data['admin_username'] is not None and self.data['admin_password_hash'] is not None
 
     def create_admin(self, username: str, password: str) -> bool:
         """Create the initial admin account."""
@@ -97,7 +101,7 @@ class AuthManager:
         if len(password) < 8:
             return False
         
-        self.data['admin_username_hash'] = self._hash_password(username)
+        self.data['admin_username'] = username.strip()
         self.data['admin_password_hash'] = self._hash_password(password)
         self._save()
         log.info('Admin account created successfully')
@@ -108,10 +112,13 @@ class AuthManager:
         if not self.is_setup_complete():
             return False
         
-        username_match = self._verify_password(username, self.data['admin_username_hash'])
-        password_match = self._verify_password(password, self.data['admin_password_hash'])
+        # Verify username matches (case-insensitive)
+        stored_username = self.data.get('admin_username', '')
+        if not stored_username or username.strip().lower() != stored_username.lower():
+            return False
         
-        return username_match and password_match
+        # Verify password
+        return self._verify_password(password, self.data['admin_password_hash'])
 
     def set_site_password(self, password: str) -> bool:
         """Set or update the site password."""
@@ -145,15 +152,19 @@ class AuthManager:
         self._save()
         log.info(f'Password requirement set to {required}')
 
+    def has_site_password(self) -> bool:
+        """Check if site password is set."""
+        return self.data.get('site_password_hash') is not None
+
     def change_admin_password(self, old_password: str, new_password: str) -> bool:
         """Change admin password (requires verification of old password)."""
         if not self.is_setup_complete():
             return False
         
-        # Verify old password by checking if username+old_password combination works
-        # We need to verify the admin credentials first
-        # Since we can't verify username separately, we'll need to store a way to verify
-        # For now, we'll require the full admin login to change password
+        # Verify old password
+        if not self._verify_password(old_password, self.data['admin_password_hash']):
+            log.warning('Failed to change admin password: old password incorrect')
+            return False
         
         if len(new_password) < 8:
             return False

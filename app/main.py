@@ -464,6 +464,163 @@ async def index(request):
         response.set_cookie('metube_theme', config.DEFAULT_THEME)
     return response
 
+# API Routes for authentication
+@routes.get(config.URL_PREFIX + 'api/setup/status')
+async def setup_status(request):
+    """Check if setup is needed."""
+    return web.json_response({
+        'setup_needed': not auth_manager.is_setup_complete()
+    })
+
+@routes.get(config.URL_PREFIX + 'api/auth/status')
+async def auth_status(request):
+    """Get authentication status."""
+    session = await aiohttp_session.get_session(request)
+    return web.json_response({
+        'setup_needed': not auth_manager.is_setup_complete(),
+        'password_required': auth_manager.is_password_required(),
+        'authenticated': session.get('authenticated', False),
+        'has_site_password': auth_manager.has_site_password()
+    })
+
+@routes.post(config.URL_PREFIX + 'api/setup')
+async def api_setup(request):
+    """Create initial admin account."""
+    if auth_manager.is_setup_complete():
+        return web.json_response({'status': 'error', 'error': 'Setup already complete'}, status=400)
+    
+    try:
+        post = await request.json()
+        username = post.get('username', '').strip()
+        password = post.get('password', '')
+        
+        if not username or not password:
+            return web.json_response({'status': 'error', 'error': 'Username and password required'}, status=400)
+        
+        if len(password) < 8:
+            return web.json_response({'status': 'error', 'error': 'Password must be at least 8 characters'}, status=400)
+        
+        if auth_manager.create_admin(username, password):
+            # Mark session as authenticated after setup
+            session = await aiohttp_session.get_session(request)
+            session['authenticated'] = True
+            session['admin_authenticated'] = True
+            return web.json_response({'status': 'ok'})
+        else:
+            return web.json_response({'status': 'error', 'error': 'Failed to create admin account'}, status=400)
+    except Exception as e:
+        log.error(f'Setup error: {e}')
+        return web.json_response({'status': 'error', 'error': str(e)}, status=500)
+
+@routes.post(config.URL_PREFIX + 'api/login')
+async def api_login(request):
+    """Login with site password."""
+    if not auth_manager.is_setup_complete():
+        return web.json_response({'status': 'error', 'error': 'Setup required'}, status=403)
+    
+    try:
+        post = await request.json()
+        password = post.get('password', '')
+        
+        if auth_manager.verify_site_password(password):
+            session = await aiohttp_session.get_session(request)
+            session['authenticated'] = True
+            return web.json_response({'status': 'ok'})
+        else:
+            return web.json_response({'status': 'error', 'error': 'Invalid password'}, status=401)
+    except Exception as e:
+        log.error(f'Login error: {e}')
+        return web.json_response({'status': 'error', 'error': str(e)}, status=500)
+
+@routes.post(config.URL_PREFIX + 'api/admin/login')
+async def api_admin_login(request):
+    """Login as admin."""
+    if not auth_manager.is_setup_complete():
+        return web.json_response({'status': 'error', 'error': 'Setup required'}, status=403)
+    
+    try:
+        post = await request.json()
+        username = post.get('username', '').strip()
+        password = post.get('password', '')
+        
+        if auth_manager.verify_admin(username, password):
+            session = await aiohttp_session.get_session(request)
+            session['admin_authenticated'] = True
+            return web.json_response({'status': 'ok'})
+        else:
+            return web.json_response({'status': 'error', 'error': 'Invalid credentials'}, status=401)
+    except Exception as e:
+        log.error(f'Admin login error: {e}')
+        return web.json_response({'status': 'error', 'error': str(e)}, status=500)
+
+@routes.post(config.URL_PREFIX + 'api/admin/logout')
+async def api_admin_logout(request):
+    """Logout admin."""
+    session = await aiohttp_session.get_session(request)
+    session['admin_authenticated'] = False
+    return web.json_response({'status': 'ok'})
+
+@routes.get(config.URL_PREFIX + 'api/admin/status')
+async def api_admin_status(request):
+    """Get admin authentication status."""
+    session = await aiohttp_session.get_session(request)
+    return web.json_response({
+        'authenticated': session.get('admin_authenticated', False)
+    })
+
+@routes.get(config.URL_PREFIX + 'api/admin/settings')
+async def api_admin_get_settings(request):
+    """Get admin settings."""
+    session = await aiohttp_session.get_session(request)
+    if not session.get('admin_authenticated', False):
+        return web.json_response({'error': 'Unauthorized'}, status=401)
+    
+    return web.json_response({
+        'password_required': auth_manager.is_password_required(),
+        'has_site_password': auth_manager.has_site_password()
+    })
+
+@routes.post(config.URL_PREFIX + 'api/admin/settings')
+async def api_admin_update_settings(request):
+    """Update admin settings."""
+    session = await aiohttp_session.get_session(request)
+    if not session.get('admin_authenticated', False):
+        return web.json_response({'status': 'error', 'error': 'Unauthorized'}, status=401)
+    
+    try:
+        post = await request.json()
+        
+        # Update site password
+        if 'site_password' in post:
+            site_password = post['site_password']
+            if site_password:
+                if not auth_manager.set_site_password(site_password):
+                    return web.json_response({'status': 'error', 'error': 'Invalid password'}, status=400)
+            else:
+                auth_manager.set_site_password('')  # Clear password
+        
+        # Update password requirement
+        if 'password_required' in post:
+            auth_manager.set_password_required(bool(post['password_required']))
+        
+        # Change admin password
+        if 'admin_password' in post:
+            admin_password_data = post['admin_password']
+            if isinstance(admin_password_data, dict) and 'old' in admin_password_data and 'new' in admin_password_data:
+                # For simplicity, we'll just verify the old password matches the current one
+                # and update to the new one
+                old_password = admin_password_data['old']
+                new_password = admin_password_data['new']
+                
+                # Change admin password using the method
+                if not auth_manager.change_admin_password(old_password, new_password):
+                    return web.json_response({'status': 'error', 'error': 'Failed to change password'}, status=400)
+        
+        return web.json_response({'status': 'ok'})
+    except Exception as e:
+        log.error(f'Admin settings update error: {e}')
+        return web.json_response({'status': 'error', 'error': str(e)}, status=500)
+
 @routes.get(config.URL_PREFIX + 'setup')
 async def setup_page(request):
     """Setup page for initial admin account creation."""
