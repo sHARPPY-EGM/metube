@@ -1,4 +1,4 @@
-import { AsyncPipe, KeyValuePipe } from '@angular/common';
+import { DecimalPipe, KeyValuePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { AfterViewInit, Component, ElementRef, viewChild, inject, OnInit } from '@angular/core';
 import { Observable, map, distinctUntilChanged } from 'rxjs';
@@ -19,7 +19,7 @@ import { MasterCheckboxComponent , SlaveCheckboxComponent} from './components/';
   imports: [
         FormsModule,
         KeyValuePipe,
-        AsyncPipe,
+        DecimalPipe,
         FontAwesomeModule,
         NgbModule,
         NgSelectModule,
