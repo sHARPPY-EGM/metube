@@ -51,7 +51,7 @@ def get_format(format: str, quality: str) -> str:
     raise Exception(f"Unkown format {format}")
 
 
-def get_opts(format: str, quality: str, ytdl_opts: dict) -> dict:
+def get_opts(format: str, quality: str, ytdl_opts: dict, download_subtitles: bool = False, download_thumbnails: bool = True) -> dict:
     """
     Returns extra download options
     Mostly postprocessing options
@@ -60,6 +60,8 @@ def get_opts(format: str, quality: str, ytdl_opts: dict) -> dict:
       format (str): format selected
       quality (str): quality of format selected (needed for some formats)
       ytdl_opts (dict): current options selected
+      download_subtitles (bool): whether to download subtitles
+      download_thumbnails (bool): whether to download/embed thumbnails
 
     Returns:
       ytdl_opts: Extra options
@@ -78,8 +80,8 @@ def get_opts(format: str, quality: str, ytdl_opts: dict) -> dict:
             }
         )
 
-        # Audio formats without thumbnail
-        if format not in ("wav") and "writethumbnail" not in opts:
+        # Audio formats with thumbnail (if enabled and format supports it)
+        if download_thumbnails and format not in ("wav") and "writethumbnail" not in opts:
             opts["writethumbnail"] = True
             postprocessors.append(
                 {
@@ -97,6 +99,16 @@ def get_opts(format: str, quality: str, ytdl_opts: dict) -> dict:
         postprocessors.append(
             {"key": "FFmpegThumbnailsConvertor", "format": "jpg", "when": "before_dl"}
         )
+
+    # Subtitle options
+    if download_subtitles:
+        opts["writesubtitles"] = True
+        opts["writeautomaticsub"] = True  # Also get auto-generated subtitles
+        opts["subtitleslangs"] = ["de", "en", "all"]  # German, English, or all available
+        opts["subtitlesformat"] = "best"
+        # Embed subtitles into video if it's a video format
+        if format not in AUDIO_FORMATS and format != "thumbnail":
+            postprocessors.append({"key": "FFmpegEmbedSubtitle"})
 
     opts["postprocessors"] = postprocessors + (
         opts["postprocessors"] if "postprocessors" in opts else []

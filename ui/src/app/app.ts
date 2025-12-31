@@ -6,7 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgSelectModule } from '@ng-select/ng-select';  
-import { faTrashAlt, faCheckCircle, faTimesCircle, faRedoAlt, faCheck, faDownload, faExternalLinkAlt, faFileImport, faFileExport, faCopy, faClock, faTachometerAlt, faVolumeUp, faClosedCaptioning } from '@fortawesome/free-solid-svg-icons';
+import { faTrashAlt, faCheckCircle, faTimesCircle, faRedoAlt, faCheck, faDownload, faExternalLinkAlt, faFileImport, faFileExport, faCopy, faClock, faTachometerAlt, faVolumeUp, faClosedCaptioning, faImage } from '@fortawesome/free-solid-svg-icons';
 import { faGithub } from '@fortawesome/free-brands-svg-icons';
 import { CookieService } from 'ngx-cookie-service';
 import { DownloadsService } from './services/downloads.service';
@@ -68,6 +68,9 @@ export class App implements AfterViewInit, OnInit {
   
   // Subtitle download settings
   subtitlesEnabled = false;
+  
+  // Thumbnail download settings
+  thumbnailsEnabled = true;
 
   // Download metrics
   activeDownloads = 0;
@@ -101,6 +104,7 @@ export class App implements AfterViewInit, OnInit {
   faTachometerAlt = faTachometerAlt;
   faVolumeUp = faVolumeUp;
   faClosedCaptioning = faClosedCaptioning;
+  faImage = faImage;
 
   constructor() {
     this.format = this.cookieService.get('metube_format') || 'any';
@@ -110,6 +114,7 @@ export class App implements AfterViewInit, OnInit {
     this.autoStart = this.cookieService.get('metube_auto_start') !== 'false';
     this.soundEnabled = this.cookieService.get('metube_sound_enabled') !== 'false';
     this.subtitlesEnabled = this.cookieService.get('metube_subtitles_enabled') === 'true';
+    this.thumbnailsEnabled = this.cookieService.get('metube_thumbnails_enabled') !== 'false';
 
     // Subscribe to download updates
     this.downloads.queueChanged.subscribe(() => {
@@ -255,6 +260,21 @@ export class App implements AfterViewInit, OnInit {
     this.cookieService.set('metube_subtitles_enabled', this.subtitlesEnabled ? 'true' : 'false', { expires: 3650 });
   }
 
+  thumbnailsEnabledChanged() {
+    this.cookieService.set('metube_thumbnails_enabled', this.thumbnailsEnabled ? 'true' : 'false', { expires: 3650 });
+  }
+
+  // Clear all downloads from the queue
+  clearAllDownloads() {
+    if (confirm('Möchtest du wirklich ALLE Downloads abbrechen und die Warteschlange leeren?')) {
+      // Delete all items from the queue
+      const allKeys = Array.from(this.downloads.queue.keys());
+      if (allKeys.length > 0) {
+        this.downloads.delById('queue', allKeys).subscribe();
+      }
+    }
+  }
+
   // Play notification sound when download completes
   private playNotificationSound() {
     if (!this.soundEnabled) return;
@@ -306,7 +326,7 @@ export class App implements AfterViewInit, OnInit {
   }
 }
 
-  addDownload(url?: string, quality?: string, format?: string, folder?: string, customNamePrefix?: string, playlistStrictMode?: boolean, playlistItemLimit?: number, autoStart?: boolean) {
+  addDownload(url?: string, quality?: string, format?: string, folder?: string, customNamePrefix?: string, playlistStrictMode?: boolean, playlistItemLimit?: number, autoStart?: boolean, downloadSubtitles?: boolean, downloadThumbnails?: boolean) {
     url = url ?? this.addUrl
     quality = quality ?? this.quality
     format = format ?? this.format
@@ -315,10 +335,12 @@ export class App implements AfterViewInit, OnInit {
     playlistStrictMode = playlistStrictMode ?? this.playlistStrictMode
     playlistItemLimit = playlistItemLimit ?? this.playlistItemLimit
     autoStart = autoStart ?? this.autoStart
+    downloadSubtitles = downloadSubtitles ?? this.subtitlesEnabled
+    downloadThumbnails = downloadThumbnails ?? this.thumbnailsEnabled
 
-    console.debug('Downloading: url='+url+' quality='+quality+' format='+format+' folder='+folder+' customNamePrefix='+customNamePrefix+' playlistStrictMode='+playlistStrictMode+' playlistItemLimit='+playlistItemLimit+' autoStart='+autoStart);
+    console.debug('Downloading: url='+url+' quality='+quality+' format='+format+' folder='+folder+' customNamePrefix='+customNamePrefix+' playlistStrictMode='+playlistStrictMode+' playlistItemLimit='+playlistItemLimit+' autoStart='+autoStart+' subtitles='+downloadSubtitles+' thumbnails='+downloadThumbnails);
     this.addInProgress = true;
-    this.downloads.add(url, quality, format, folder, customNamePrefix, playlistStrictMode, playlistItemLimit, autoStart).subscribe((status: Status) => {
+    this.downloads.add(url, quality, format, folder, customNamePrefix, playlistStrictMode, playlistItemLimit, autoStart, downloadSubtitles, downloadThumbnails).subscribe((status: Status) => {
       if (status.status === 'error') {
         alert(`Fehler beim Hinzufügen der URL: ${status.msg}`);
       } else {

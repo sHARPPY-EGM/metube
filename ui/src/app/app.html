@@ -161,19 +161,19 @@
                 </div>
               </div>
               
-              <!-- Subtitles (Work in Progress) -->
-              <div class="col-md-6" ngbTooltip="Diese Funktion befindet sich noch in Entwicklung und ist derzeit nicht verfügbar.">
-                <div class="form-check form-switch d-flex align-items-center h-100 disabled-option">
+              <!-- Subtitles -->
+              <div class="col-md-6" ngbTooltip="Lädt verfügbare Untertitel (Deutsch/Englisch) herunter und bettet sie in die Videodatei ein.">
+                <div class="form-check form-switch d-flex align-items-center h-100">
                   <input class="form-check-input"
                     type="checkbox"
                     role="switch"
                     id="subtitles"
                     name="subtitlesEnabled"
                     [(ngModel)]="subtitlesEnabled"
-                    disabled>
+                    (change)="subtitlesEnabledChanged()">
                   <label class="form-check-label" for="subtitles">
                     <fa-icon [icon]="faClosedCaptioning" class="me-1" />
-                    Untertitel herunterladen <span class="wip-badge">(Work in Progress)</span>
+                    Untertitel herunterladen
                   </label>
                 </div>
               </div>
@@ -191,6 +191,23 @@
                   <label class="form-check-label" for="sound">
                     <fa-icon [icon]="faVolumeUp" class="me-1" />
                     Ton bei Abschluss
+                  </label>
+                </div>
+              </div>
+              
+              <!-- Thumbnail Download -->
+              <div class="col-md-6" ngbTooltip="Wenn deaktiviert, werden keine Vorschaubilder (Thumbnails) heruntergeladen. Spart Speicherplatz.">
+                <div class="form-check form-switch d-flex align-items-center h-100">
+                  <input class="form-check-input"
+                    type="checkbox"
+                    role="switch"
+                    id="thumbnails"
+                    name="thumbnailsEnabled"
+                    [(ngModel)]="thumbnailsEnabled"
+                    (change)="thumbnailsEnabledChanged()">
+                  <label class="form-check-label" for="thumbnails">
+                    <fa-icon [icon]="faImage" class="me-1" />
+                    Vorschaubilder herunterladen
                   </label>
                 </div>
               </div>
@@ -263,8 +280,11 @@
 
   <!-- Downloads Section -->
   <div class="metube-section-header">Downloads</div>
-  <div class="px-3 py-3 border-bottom">
-    <button type="button" class="btn btn-link px-0 me-3" disabled #queueDelSelected (click)="delSelectedDownloads('queue')">
+  <div class="px-3 py-3 border-bottom d-flex flex-wrap gap-3">
+    <button type="button" class="btn btn-link text-danger px-0" (click)="clearAllDownloads()" [disabled]="downloads.queue.size === 0">
+      <fa-icon [icon]="faTimesCircle" class="me-1" /> Alle abbrechen
+    </button>
+    <button type="button" class="btn btn-link px-0" disabled #queueDelSelected (click)="delSelectedDownloads('queue')">
       <fa-icon [icon]="faTrashAlt" class="me-1" /> Ausgewählte abbrechen
     </button>
     <button type="button" class="btn btn-link px-0" disabled #queueDownloadSelected (click)="startSelectedDownloads('queue')">

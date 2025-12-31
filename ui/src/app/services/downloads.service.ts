@@ -107,8 +107,19 @@ export class DownloadsService {
     return of({status: 'error', msg: msg})
   }
 
-  public add(url: string, quality: string, format: string, folder: string, customNamePrefix: string, playlistStrictMode: boolean, playlistItemLimit: number, autoStart: boolean) {
-    return this.http.post<Status>('add', {url: url, quality: quality, format: format, folder: folder, custom_name_prefix: customNamePrefix, playlist_strict_mode: playlistStrictMode, playlist_item_limit: playlistItemLimit, auto_start: autoStart}).pipe(
+  public add(url: string, quality: string, format: string, folder: string, customNamePrefix: string, playlistStrictMode: boolean, playlistItemLimit: number, autoStart: boolean, downloadSubtitles: boolean = false, downloadThumbnails: boolean = true) {
+    return this.http.post<Status>('add', {
+      url: url,
+      quality: quality,
+      format: format,
+      folder: folder,
+      custom_name_prefix: customNamePrefix,
+      playlist_strict_mode: playlistStrictMode,
+      playlist_item_limit: playlistItemLimit,
+      auto_start: autoStart,
+      download_subtitles: downloadSubtitles,
+      download_thumbnails: downloadThumbnails
+    }).pipe(
       catchError(this.handleHTTPError)
     );
   }
