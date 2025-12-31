@@ -1,7 +1,223 @@
-/* You can add global styles to this file, and also import other style files */
+/* Purple Dark Theme CSS Variables and Global Styles */
+
+:root[data-bs-theme="dark"]
+    /* Purple Color Palette */
+    --purple-primary: #9333EA
+    --purple-primary-dark: #7c3aed
+    --purple-primary-light: #a855f7
+    --purple-bg-dark: #1a0a2e
+    --purple-bg-darker: #0a0a0f
+    --purple-text-primary: #ffffff
+    --purple-text-secondary: #e0e0e0
+    --purple-border: rgba(147, 51, 234, 0.3)
+    
+    /* Bootstrap Overrides for Purple Theme */
+    --bs-primary: #9333EA
+    --bs-primary-rgb: 147, 51, 234
+    --bs-primary-bg-subtle: rgba(147, 51, 234, 0.1)
+    --bs-primary-border-subtle: rgba(147, 51, 234, 0.3)
+    --bs-primary-text-emphasis: #a855f7
+    --bs-dark: #1a0a2e
+    --bs-dark-rgb: 26, 10, 46
+    --bs-dark-bg-subtle: #2d1b4e
+    --bs-dark-border-subtle: rgba(45, 27, 78, 0.5)
+    --bs-dark-text-emphasis: #ffffff
+    --bs-secondary: #6c757d
+    --bs-secondary-rgb: 108, 117, 125
+    --bs-body-bg: #0a0a0f
+    --bs-body-color: #ffffff
+    --bs-body-color-rgb: 255, 255, 255
+    --bs-border-color: rgba(147, 51, 234, 0.2)
+    --bs-link-color: #9333EA
+    --bs-link-hover-color: #a855f7
+    --bs-success: #10b981
+    --bs-danger: #ef4444
+    --bs-warning: #f59e0b
+    --bs-info: #3b82f6
+
+html[data-bs-theme="dark"]
+    background: linear-gradient(180deg, #1a0a2e 0%, #0a0a0f 100%)
+    min-height: 100vh
+
+body
+    background: linear-gradient(180deg, #1a0a2e 0%, #0a0a0f 100%)
+    background-attachment: fixed
+    color: var(--purple-text-primary)
+    min-height: 100vh
 
 .navbar
-    background-color: var(--bs-dark) !important
+    background-color: var(--purple-bg-dark) !important
+    border-bottom: 1px solid var(--purple-border)
+    backdrop-filter: blur(10px)
 
-    [data-bs-theme="dark"] &
-        background-color: var(--bs-dark-bg-subtle) !important
+    .navbar-brand
+        color: var(--purple-text-primary) !important
+        font-weight: 600
+
+    .download-metrics
+        .metric
+            color: var(--purple-text-secondary)
+
+/* Global Button Styles */
+.btn-primary
+    background: var(--purple-primary)
+    border-color: var(--purple-primary)
+    color: #ffffff
+    transition: all 0.3s ease
+    box-shadow: 0 2px 8px rgba(147, 51, 234, 0.3)
+
+    &:hover, &:focus
+        background: var(--purple-primary-dark)
+        border-color: var(--purple-primary-dark)
+        color: #ffffff
+        transform: translateY(-2px)
+        box-shadow: 0 4px 12px rgba(147, 51, 234, 0.5)
+
+    &:active
+        transform: translateY(0)
+        box-shadow: 0 2px 8px rgba(147, 51, 234, 0.3)
+
+    &:disabled
+        background: rgba(147, 51, 234, 0.5)
+        border-color: rgba(147, 51, 234, 0.5)
+        opacity: 0.6
+
+.btn-secondary
+    background: transparent
+    border-color: var(--purple-primary)
+    color: var(--purple-primary)
+    transition: all 0.3s ease
+
+    &:hover, &:focus
+        background: var(--purple-primary)
+        border-color: var(--purple-primary)
+        color: #ffffff
+        transform: translateY(-2px)
+        box-shadow: 0 4px 12px rgba(147, 51, 234, 0.3)
+
+.btn-outline-secondary
+    border-color: var(--purple-border)
+    color: var(--purple-text-secondary)
+    transition: all 0.3s ease
+
+    &:hover, &:focus
+        background: rgba(147, 51, 234, 0.1)
+        border-color: var(--purple-primary)
+        color: var(--purple-primary)
+
+.btn-link
+    color: var(--purple-primary)
+    transition: color 0.2s ease
+    text-decoration: none
+
+    &:hover, &:focus
+        color: var(--purple-primary-light)
+
+    &:disabled
+        color: rgba(147, 51, 234, 0.4)
+        opacity: 0.6
+
+/* Form Controls */
+.form-control, .form-select
+    background-color: var(--purple-bg-dark)
+    border-color: var(--purple-border)
+    color: var(--purple-text-primary)
+    transition: all 0.3s ease
+
+    &:focus
+        background-color: var(--purple-bg-dark)
+        border-color: var(--purple-primary)
+        color: var(--purple-text-primary)
+        box-shadow: 0 0 0 0.2rem rgba(147, 51, 234, 0.25)
+
+    &::placeholder
+        color: rgba(224, 224, 224, 0.5)
+
+    &:disabled
+        background-color: rgba(26, 10, 46, 0.5)
+        opacity: 0.6
+
+.input-group-text
+    background-color: var(--purple-bg-dark)
+    border-color: var(--purple-border)
+    color: var(--purple-text-secondary)
+
+/* Cards */
+.card
+    background-color: var(--purple-bg-dark)
+    border-color: var(--purple-border)
+
+.card-body
+    background-color: var(--purple-bg-dark)
+
+/* Tables */
+.table
+    color: var(--purple-text-primary)
+
+    thead
+        th
+            border-bottom-color: var(--purple-border)
+            color: var(--purple-text-primary)
+
+    tbody
+        tr
+            border-color: rgba(147, 51, 234, 0.1)
+
+            &:hover
+                background-color: rgba(147, 51, 234, 0.05)
+
+/* Progress Bars */
+.progress
+    background-color: rgba(147, 51, 234, 0.1)
+
+.progress-bar
+    background-color: var(--purple-primary)
+
+/* Links */
+a
+    color: var(--purple-primary)
+    transition: color 0.2s ease
+
+    &:hover
+        color: var(--purple-primary-light)
+
+/* Modal */
+.modal-content
+    background-color: var(--purple-bg-dark)
+    border-color: var(--purple-border)
+
+.modal-header
+    border-bottom-color: var(--purple-border)
+
+.modal-footer
+    border-top-color: var(--purple-border)
+
+.btn-close
+    filter: invert(1) grayscale(100%) brightness(200%)
+
+/* Dropdown */
+.dropdown-menu
+    background-color: var(--purple-bg-dark)
+    border-color: var(--purple-border)
+
+.dropdown-item
+    color: var(--purple-text-primary)
+
+    &:hover, &:focus
+        background-color: rgba(147, 51, 234, 0.2)
+        color: var(--purple-text-primary)
+
+    &.active
+        background-color: var(--purple-primary)
+        color: #ffffff
+
+/* Alert */
+.alert
+    background-color: var(--purple-bg-dark)
+    border-color: var(--purple-border)
+    color: var(--purple-text-primary)
+
+/* Footer */
+.footer
+    background: linear-gradient(to bottom, rgba(26, 10, 46, 0.8), rgba(10, 10, 15, 0.9)) !important
+    border-top: 1px solid var(--purple-border)

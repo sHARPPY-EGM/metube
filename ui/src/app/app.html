@@ -36,50 +36,6 @@
         </div>
       }
     </div>
-    <!--
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsDefault" aria-controls="navbarsDefault" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarsDefault">
-      <ul class="navbar-nav mr-auto">
-        <li class="nav-item active">
-          <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
-        </li>
-      </ul>
-    </div>
-    -->
-    <div class="navbar-nav ms-auto">
-      <div class="nav-item dropdown">
-        <button class="btn btn-link nav-link py-2 px-0 px-sm-2 dropdown-toggle d-flex align-items-center"
-          id="theme-select"
-          type="button"
-          aria-expanded="false"
-          data-bs-toggle="dropdown"
-          data-bs-display="static">
-          @if(activeTheme){
-          <fa-icon [icon]="activeTheme.icon" />
-          }
-        </button>
-        <ul class="dropdown-menu dropdown-menu-end position-absolute" aria-labelledby="theme-select">
-          @for (theme of themes; track theme) {
-            <li>
-              <button type="button" class="dropdown-item d-flex align-items-center" 
-              [class.active]="activeTheme === theme"
-              (click)="themeChanged(theme)">
-                <span class="me-2 opacity-50">
-                  <fa-icon [icon]="theme.icon" />
-                </span>
-                {{ theme.displayName }}
-                <span class="ms-auto"
-                [class.d-none]="activeTheme !== theme">
-                <fa-icon [icon]="faCheck" />
-                </span>
-              </button>
-            </li>
-          }
-        </ul>
-      </div>
-    </div>
   </div>
 </nav>
 

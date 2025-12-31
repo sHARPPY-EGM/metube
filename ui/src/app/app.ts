@@ -6,12 +6,11 @@ import { FormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgSelectModule } from '@ng-select/ng-select';  
-import { faTrashAlt, faCheckCircle, faTimesCircle, faRedoAlt, faSun, faMoon, faCheck, faCircleHalfStroke, faDownload, faExternalLinkAlt, faFileImport, faFileExport, faCopy, faClock, faTachometerAlt } from '@fortawesome/free-solid-svg-icons';
+import { faTrashAlt, faCheckCircle, faTimesCircle, faRedoAlt, faDownload, faExternalLinkAlt, faFileImport, faFileExport, faCopy, faClock, faTachometerAlt } from '@fortawesome/free-solid-svg-icons';
 import { faGithub } from '@fortawesome/free-brands-svg-icons';
 import { CookieService } from 'ngx-cookie-service';
 import { DownloadsService } from './services/downloads.service';
-import { Themes } from './theme';
-import { Download, Status, Theme , Quality, Format, Formats, State } from './interfaces';
+import { Download, Status, Quality, Format, Formats, State } from './interfaces';
 import { EtaPipe, SpeedPipe, FileSizePipe } from './pipes';
 import { MasterCheckboxComponent , SlaveCheckboxComponent} from './components/';
 
@@ -49,8 +48,6 @@ export class App implements AfterViewInit, OnInit {
   playlistStrictMode!: boolean;
   playlistItemLimit!: number;
   addInProgress = false;
-  themes: Theme[] = Themes;
-  activeTheme: Theme | undefined;
   customDirs$!: Observable<string[]>;
   showBatchPanel = false; 
   batchImportModalOpen = false;
@@ -84,10 +81,6 @@ export class App implements AfterViewInit, OnInit {
   faCheckCircle = faCheckCircle;
   faTimesCircle = faTimesCircle;
   faRedoAlt = faRedoAlt;
-  faSun = faSun;
-  faMoon = faMoon;
-  faCheck = faCheck;
-  faCircleHalfStroke = faCircleHalfStroke;
   faDownload = faDownload;
   faExternalLinkAlt = faExternalLinkAlt;
   faFileImport = faFileImport;
@@ -103,8 +96,6 @@ export class App implements AfterViewInit, OnInit {
     this.setQualities()
     this.quality = this.cookieService.get('metube_quality') || 'best';
     this.autoStart = this.cookieService.get('metube_auto_start') !== 'false';
-
-    this.activeTheme = this.getPreferredTheme(this.cookieService);
 
     // Subscribe to download updates
     this.downloads.queueChanged.subscribe(() => {
@@ -123,13 +114,8 @@ export class App implements AfterViewInit, OnInit {
     this.getConfiguration();
     this.getYtdlOptionsUpdateTime();
     this.customDirs$ = this.getMatchingCustomDir();
-    this.setTheme(this.activeTheme!);
-
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-      if (this.activeTheme && this.activeTheme.id === 'auto') {
-         this.setTheme(this.activeTheme);
-      }
-    });
+    // Set dark theme permanently
+    document.documentElement.setAttribute('data-bs-theme', 'dark');
   }
 
   ngAfterViewInit() {
@@ -223,29 +209,6 @@ export class App implements AfterViewInit, OnInit {
         }
       }
     });
-  }
-
-  getPreferredTheme(cookieService: CookieService) {
-    let theme = 'auto';
-    if (cookieService.check('metube_theme')) {
-      theme = cookieService.get('metube_theme');
-    }
-
-    return this.themes.find(x => x.id === theme) ?? this.themes.find(x => x.id === 'auto');
-  }
-
-  themeChanged(theme: Theme) {
-    this.cookieService.set('metube_theme', theme.id, { expires: 3650 });
-    this.setTheme(theme);
-  }
-
-  setTheme(theme: Theme) {
-    this.activeTheme = theme;
-    if (theme.id === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      document.documentElement.setAttribute('data-bs-theme', 'dark');
-    } else {
-      document.documentElement.setAttribute('data-bs-theme', theme.id);
-    }
   }
 
   formatChanged() {
