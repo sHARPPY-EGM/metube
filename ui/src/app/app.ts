@@ -6,7 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgSelectModule } from '@ng-select/ng-select';  
-import { faTrashAlt, faCheckCircle, faTimesCircle, faRedoAlt, faCheck, faDownload, faExternalLinkAlt, faFileImport, faFileExport, faCopy, faClock, faTachometerAlt } from '@fortawesome/free-solid-svg-icons';
+import { faTrashAlt, faCheckCircle, faTimesCircle, faRedoAlt, faCheck, faDownload, faExternalLinkAlt, faFileImport, faFileExport, faCopy, faClock, faTachometerAlt, faVolumeUp, faClosedCaptioning } from '@fortawesome/free-solid-svg-icons';
 import { faGithub } from '@fortawesome/free-brands-svg-icons';
 import { CookieService } from 'ngx-cookie-service';
 import { DownloadsService } from './services/downloads.service';
@@ -59,6 +59,14 @@ export class App implements AfterViewInit, OnInit {
   ytDlpVersion: string | null = null;
   metubeVersion: string | null = null;
   isAdvancedOpen = false;
+  
+  // Sound notification settings
+  soundEnabled: boolean;
+  private audioContext: AudioContext | null = null;
+  private previousDoneCount = 0;
+  
+  // Subtitle download settings
+  subtitlesEnabled = false;
 
   // Download metrics
   activeDownloads = 0;
@@ -90,6 +98,8 @@ export class App implements AfterViewInit, OnInit {
   faGithub = faGithub;
   faClock = faClock;
   faTachometerAlt = faTachometerAlt;
+  faVolumeUp = faVolumeUp;
+  faClosedCaptioning = faClosedCaptioning;
 
   constructor() {
     this.format = this.cookieService.get('metube_format') || 'any';
@@ -97,6 +107,8 @@ export class App implements AfterViewInit, OnInit {
     this.setQualities()
     this.quality = this.cookieService.get('metube_quality') || 'best';
     this.autoStart = this.cookieService.get('metube_auto_start') !== 'false';
+    this.soundEnabled = this.cookieService.get('metube_sound_enabled') !== 'false';
+    this.subtitlesEnabled = this.cookieService.get('metube_subtitles_enabled') === 'true';
 
     // Subscribe to download updates
     this.downloads.queueChanged.subscribe(() => {
@@ -135,6 +147,13 @@ export class App implements AfterViewInit, OnInit {
       this.doneClearCompleted().nativeElement.disabled = completed === 0;
       this.doneClearFailed().nativeElement.disabled = failed === 0;
       this.doneRetryFailed().nativeElement.disabled = failed === 0;
+      
+      // Play sound if new downloads completed
+      const currentDoneCount = this.downloads.done.size;
+      if (currentDoneCount > this.previousDoneCount && completed > 0) {
+        this.playNotificationSound();
+      }
+      this.previousDoneCount = currentDoneCount;
     });
     this.fetchVersionInfo();
   }
@@ -222,6 +241,45 @@ export class App implements AfterViewInit, OnInit {
 
   autoStartChanged() {
     this.cookieService.set('metube_auto_start', this.autoStart ? 'true' : 'false', { expires: 3650 });
+  }
+
+  soundEnabledChanged() {
+    this.cookieService.set('metube_sound_enabled', this.soundEnabled ? 'true' : 'false', { expires: 3650 });
+  }
+
+  subtitlesEnabledChanged() {
+    this.cookieService.set('metube_subtitles_enabled', this.subtitlesEnabled ? 'true' : 'false', { expires: 3650 });
+  }
+
+  // Play notification sound when download completes
+  private playNotificationSound() {
+    if (!this.soundEnabled) return;
+    
+    try {
+      // Create AudioContext on first use
+      if (!this.audioContext) {
+        this.audioContext = new AudioContext();
+      }
+      
+      const ctx = this.audioContext;
+      const oscillator = ctx.createOscillator();
+      const gainNode = ctx.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(ctx.destination);
+      
+      // Pleasant notification sound - two tones
+      oscillator.frequency.setValueAtTime(800, ctx.currentTime);
+      oscillator.frequency.setValueAtTime(1000, ctx.currentTime + 0.1);
+      
+      gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+      
+      oscillator.start(ctx.currentTime);
+      oscillator.stop(ctx.currentTime + 0.3);
+    } catch (e) {
+      console.error('Could not play notification sound:', e);
+    }
   }
 
   queueSelectionChanged(checked: number) {

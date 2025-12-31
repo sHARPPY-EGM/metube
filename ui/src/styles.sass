@@ -1,35 +1,35 @@
 /* Purple Dark Theme CSS Variables and Global Styles */
 
 :root[data-bs-theme="dark"]
-    /* Purple Color Palette */
-    --purple-primary: #9333EA
-    --purple-primary-dark: #7c3aed
-    --purple-primary-light: #a855f7
+    /* Purple Color Palette - Unified #7c3aed */
+    --purple-primary: #7c3aed
+    --purple-primary-dark: #6d28d9
+    --purple-primary-light: #8b5cf6
     --purple-bg-dark: #0a0a0f
     --purple-bg-darker: #000000
     --purple-text-primary: #ffffff
     --purple-text-secondary: #e0e0e0
-    --purple-border: rgba(147, 51, 234, 0.3)
+    --purple-border: rgba(124, 58, 237, 0.3)
     
     /* Bootstrap Overrides for Purple Theme */
-    --bs-primary: #9333EA
-    --bs-primary-rgb: 147, 51, 234
-    --bs-primary-bg-subtle: rgba(147, 51, 234, 0.1)
-    --bs-primary-border-subtle: rgba(147, 51, 234, 0.3)
-    --bs-primary-text-emphasis: #a855f7
-    --bs-dark: #1a0a2e
-    --bs-dark-rgb: 26, 10, 46
-    --bs-dark-bg-subtle: #2d1b4e
-    --bs-dark-border-subtle: rgba(45, 27, 78, 0.5)
+    --bs-primary: #7c3aed
+    --bs-primary-rgb: 124, 58, 237
+    --bs-primary-bg-subtle: rgba(124, 58, 237, 0.1)
+    --bs-primary-border-subtle: rgba(124, 58, 237, 0.3)
+    --bs-primary-text-emphasis: #8b5cf6
+    --bs-dark: #000000
+    --bs-dark-rgb: 0, 0, 0
+    --bs-dark-bg-subtle: #0a0a0f
+    --bs-dark-border-subtle: rgba(124, 58, 237, 0.2)
     --bs-dark-text-emphasis: #ffffff
     --bs-secondary: #6c757d
     --bs-secondary-rgb: 108, 117, 125
     --bs-body-bg: #000000
     --bs-body-color: #ffffff
     --bs-body-color-rgb: 255, 255, 255
-    --bs-border-color: rgba(147, 51, 234, 0.2)
-    --bs-link-color: #9333EA
-    --bs-link-hover-color: #a855f7
+    --bs-border-color: rgba(124, 58, 237, 0.2)
+    --bs-link-color: #7c3aed
+    --bs-link-hover-color: #8b5cf6
     --bs-success: #10b981
     --bs-danger: #ef4444
     --bs-warning: #f59e0b
@@ -47,7 +47,7 @@ body
 
 .navbar
     background-color: #000000 !important
-    border-bottom: 1px solid rgba(147, 51, 234, 0.2)
+    border-bottom: 1px solid rgba(124, 58, 237, 0.2)
     backdrop-filter: blur(10px)
 
     .navbar-brand
@@ -64,23 +64,25 @@ body
     border-color: var(--purple-primary)
     color: #ffffff
     transition: all 0.3s ease
-    box-shadow: 0 2px 8px rgba(147, 51, 234, 0.3)
+    box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3)
 
     &:hover, &:focus
-        background: var(--purple-primary-dark)
-        border-color: var(--purple-primary-dark)
+        background: var(--purple-primary-light)
+        border-color: var(--purple-primary-light)
         color: #ffffff
         transform: translateY(-2px)
-        box-shadow: 0 4px 12px rgba(147, 51, 234, 0.5)
+        box-shadow: 0 4px 16px rgba(124, 58, 237, 0.5)
 
     &:active
+        background: var(--purple-primary-dark)
         transform: translateY(0)
-        box-shadow: 0 2px 8px rgba(147, 51, 234, 0.3)
+        box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3)
 
     &:disabled
-        background: rgba(147, 51, 234, 0.5)
-        border-color: rgba(147, 51, 234, 0.5)
+        background: rgba(124, 58, 237, 0.5)
+        border-color: rgba(124, 58, 237, 0.5)
         opacity: 0.6
+        transform: none
 
 .btn-secondary
     background: transparent
@@ -93,42 +95,51 @@ body
         border-color: var(--purple-primary)
         color: #ffffff
         transform: translateY(-2px)
-        box-shadow: 0 4px 12px rgba(147, 51, 234, 0.3)
+        box-shadow: 0 4px 16px rgba(124, 58, 237, 0.4)
+
+    &:active
+        transform: translateY(0)
 
 .btn-outline-secondary
-    border-color: var(--purple-border)
+    border-color: rgba(124, 58, 237, 0.3)
     color: var(--purple-text-secondary)
     transition: all 0.3s ease
 
     &:hover, &:focus
-        background: rgba(147, 51, 234, 0.1)
+        background: rgba(124, 58, 237, 0.15)
         border-color: var(--purple-primary)
         color: var(--purple-primary)
+        transform: translateY(-1px)
+
+    &:active
+        transform: translateY(0)
 
 .btn-link
     color: var(--purple-primary)
-    transition: color 0.2s ease
+    transition: all 0.2s ease
     text-decoration: none
 
     &:hover, &:focus
         color: var(--purple-primary-light)
+        transform: scale(1.1)
 
     &:disabled
-        color: rgba(147, 51, 234, 0.4)
+        color: rgba(124, 58, 237, 0.4)
         opacity: 0.6
+        transform: none
 
 /* Form Controls */
 .form-control, .form-select
-    background-color: rgba(10, 10, 15, 0.8)
-    border-color: var(--purple-border)
+    background-color: rgba(10, 10, 15, 0.9)
+    border-color: rgba(124, 58, 237, 0.3)
     color: var(--purple-text-primary)
     transition: all 0.3s ease
 
     &:focus
-        background-color: rgba(10, 10, 15, 0.8)
+        background-color: rgba(10, 10, 15, 0.95)
         border-color: var(--purple-primary)
         color: var(--purple-text-primary)
-        box-shadow: 0 0 0 0.2rem rgba(147, 51, 234, 0.25)
+        box-shadow: 0 0 0 0.2rem rgba(124, 58, 237, 0.25)
 
     &::placeholder
         color: rgba(224, 224, 224, 0.5)
@@ -138,17 +149,17 @@ body
         opacity: 0.6
 
 .input-group-text
-    background-color: rgba(10, 10, 15, 0.8)
-    border-color: var(--purple-border)
+    background-color: rgba(10, 10, 15, 0.9)
+    border-color: rgba(124, 58, 237, 0.3)
     color: var(--purple-text-secondary)
 
 /* Cards */
 .card
-    background-color: rgba(10, 10, 15, 0.8)
-    border-color: var(--purple-border)
+    background-color: rgba(10, 10, 15, 0.9)
+    border-color: rgba(124, 58, 237, 0.3)
 
 .card-body
-    background-color: rgba(10, 10, 15, 0.8)
+    background-color: rgba(10, 10, 15, 0.9)
 
 /* Tables */
 .table
@@ -156,22 +167,24 @@ body
 
     thead
         th
-            border-bottom-color: var(--purple-border)
+            border-bottom-color: rgba(124, 58, 237, 0.3)
             color: var(--purple-text-primary)
 
     tbody
         tr
-            border-color: rgba(147, 51, 234, 0.1)
+            border-color: rgba(124, 58, 237, 0.1)
+            transition: background-color 0.2s ease
 
             &:hover
-                background-color: rgba(147, 51, 234, 0.05)
+                background-color: rgba(124, 58, 237, 0.08)
 
 /* Progress Bars */
 .progress
-    background-color: rgba(147, 51, 234, 0.1)
+    background-color: rgba(124, 58, 237, 0.15)
+    border-radius: 8px
 
 .progress-bar
-    background-color: var(--purple-primary)
+    background: linear-gradient(90deg, var(--purple-primary) 0%, var(--purple-primary-light) 100%)
 
 /* Links */
 a
@@ -183,28 +196,31 @@ a
 
 /* Modal */
 .modal-content
-    background-color: rgba(10, 10, 15, 0.95)
-    border-color: var(--purple-border)
+    background-color: rgba(10, 10, 15, 0.98)
+    border-color: rgba(124, 58, 237, 0.3)
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6)
 
 .modal-header
-    border-bottom-color: var(--purple-border)
+    border-bottom-color: rgba(124, 58, 237, 0.3)
 
 .modal-footer
-    border-top-color: var(--purple-border)
+    border-top-color: rgba(124, 58, 237, 0.3)
 
 .btn-close
     filter: invert(1) grayscale(100%) brightness(200%)
 
 /* Dropdown */
 .dropdown-menu
-    background-color: rgba(10, 10, 15, 0.95)
-    border-color: var(--purple-border)
+    background-color: rgba(10, 10, 15, 0.98)
+    border-color: rgba(124, 58, 237, 0.3)
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4)
 
 .dropdown-item
     color: var(--purple-text-primary)
+    transition: all 0.2s ease
 
     &:hover, &:focus
-        background-color: rgba(147, 51, 234, 0.2)
+        background-color: rgba(124, 58, 237, 0.2)
         color: var(--purple-text-primary)
 
     &.active
@@ -213,11 +229,45 @@ a
 
 /* Alert */
 .alert
-    background-color: rgba(10, 10, 15, 0.8)
-    border-color: var(--purple-border)
+    background-color: rgba(10, 10, 15, 0.9)
+    border-color: rgba(124, 58, 237, 0.3)
     color: var(--purple-text-primary)
 
 /* Footer */
 .footer
     background: #000000 !important
-    border-top: 1px solid rgba(147, 51, 234, 0.2)
+    border-top: 1px solid rgba(124, 58, 237, 0.2)
+
+/* Form Switch/Checkbox */
+.form-check-input
+    background-color: rgba(10, 10, 15, 0.9)
+    border-color: rgba(124, 58, 237, 0.3)
+    transition: all 0.2s ease
+
+    &:checked
+        background-color: var(--purple-primary)
+        border-color: var(--purple-primary)
+
+    &:focus
+        border-color: var(--purple-primary)
+        box-shadow: 0 0 0 0.2rem rgba(124, 58, 237, 0.25)
+
+/* Scrollbar Styling */
+::-webkit-scrollbar
+    width: 8px
+    height: 8px
+
+::-webkit-scrollbar-track
+    background: #000000
+
+::-webkit-scrollbar-thumb
+    background: rgba(124, 58, 237, 0.4)
+    border-radius: 4px
+
+    &:hover
+        background: rgba(124, 58, 237, 0.6)
+
+/* Selection */
+::selection
+    background: rgba(124, 58, 237, 0.4)
+    color: #ffffff
