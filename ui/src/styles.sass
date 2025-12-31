@@ -1,273 +1,408 @@
-/* Purple Dark Theme CSS Variables and Global Styles */
+/* ORION - Modern Dark Theme with Purple Accents */
+/* Complete UI Redesign */
 
+// Color Palette
+$bg-primary: #0d0d12
+$bg-secondary: #16161d
+$bg-tertiary: #1e1e28
+$bg-elevated: #252530
+$bg-hover: #2a2a38
+
+$purple-accent: #7c3aed
+$purple-hover: #8b5cf6
+$purple-active: #6d28d9
+$purple-subtle: rgba(124, 58, 237, 0.15)
+$purple-border: rgba(124, 58, 237, 0.35)
+
+$text-primary: #f0f0f5
+$text-secondary: #a8a8b8
+$text-muted: #6b6b7b
+
+$success: #22c55e
+$danger: #ef4444
+$warning: #f59e0b
+$info: #3b82f6
+
+$border-radius-sm: 8px
+$border-radius-md: 12px
+$border-radius-lg: 16px
+
+$transition-fast: 0.15s ease
+$transition-normal: 0.25s ease
+
+// CSS Custom Properties
 :root[data-bs-theme="dark"]
-    /* Purple Color Palette - Unified #7c3aed */
-    --purple-primary: #7c3aed
-    --purple-primary-dark: #6d28d9
-    --purple-primary-light: #8b5cf6
-    --purple-bg-dark: #0a0a0f
-    --purple-bg-darker: #000000
-    --purple-text-primary: #ffffff
-    --purple-text-secondary: #e0e0e0
-    --purple-border: rgba(124, 58, 237, 0.3)
+    // Purple Theme
+    --purple-accent: #{$purple-accent}
+    --purple-hover: #{$purple-hover}
+    --purple-active: #{$purple-active}
     
-    /* Bootstrap Overrides for Purple Theme */
-    --bs-primary: #7c3aed
+    // Backgrounds
+    --bg-primary: #{$bg-primary}
+    --bg-secondary: #{$bg-secondary}
+    --bg-tertiary: #{$bg-tertiary}
+    --bg-elevated: #{$bg-elevated}
+    
+    // Text
+    --text-primary: #{$text-primary}
+    --text-secondary: #{$text-secondary}
+    --text-muted: #{$text-muted}
+    
+    // Bootstrap overrides
+    --bs-primary: #{$purple-accent}
     --bs-primary-rgb: 124, 58, 237
-    --bs-primary-bg-subtle: rgba(124, 58, 237, 0.1)
-    --bs-primary-border-subtle: rgba(124, 58, 237, 0.3)
-    --bs-primary-text-emphasis: #8b5cf6
-    --bs-dark: #000000
-    --bs-dark-rgb: 0, 0, 0
-    --bs-dark-bg-subtle: #0a0a0f
-    --bs-dark-border-subtle: rgba(124, 58, 237, 0.2)
-    --bs-dark-text-emphasis: #ffffff
-    --bs-secondary: #6c757d
-    --bs-secondary-rgb: 108, 117, 125
-    --bs-body-bg: #000000
-    --bs-body-color: #ffffff
-    --bs-body-color-rgb: 255, 255, 255
-    --bs-border-color: rgba(124, 58, 237, 0.2)
-    --bs-link-color: #7c3aed
-    --bs-link-hover-color: #8b5cf6
-    --bs-success: #10b981
-    --bs-danger: #ef4444
-    --bs-warning: #f59e0b
-    --bs-info: #3b82f6
+    --bs-body-bg: #{$bg-primary}
+    --bs-body-color: #{$text-primary}
+    --bs-border-color: #{$purple-border}
+    --bs-link-color: #{$purple-accent}
+    --bs-link-hover-color: #{$purple-hover}
+    --bs-success: #{$success}
+    --bs-danger: #{$danger}
+    --bs-warning: #{$warning}
+    --bs-info: #{$info}
 
-html[data-bs-theme="dark"]
-    background: #000000
+// Base Styles
+*
+    box-sizing: border-box
+
+html
+    background: $bg-primary
     min-height: 100vh
+    scroll-behavior: smooth
 
 body
-    background: #000000
-    background-attachment: fixed
-    color: var(--purple-text-primary)
+    background: $bg-primary
+    color: $text-primary
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif
     min-height: 100vh
+    line-height: 1.6
+    -webkit-font-smoothing: antialiased
+    -moz-osx-font-smoothing: grayscale
 
+// Navbar
 .navbar
-    background-color: #000000 !important
-    border-bottom: 1px solid rgba(124, 58, 237, 0.2)
-    backdrop-filter: blur(10px)
+    background: $bg-secondary !important
+    border-bottom: 1px solid $purple-border
+    padding: 0.75rem 0
+    backdrop-filter: blur(12px)
 
     .navbar-brand
-        color: var(--purple-text-primary) !important
-        font-weight: 600
+        color: $text-primary !important
+        font-weight: 700
+        font-size: 1.5rem
+        letter-spacing: 3px
+        text-transform: uppercase
+        transition: color $transition-fast
 
-    .download-metrics
-        .metric
-            color: var(--purple-text-secondary)
+        &:hover
+            color: $purple-accent !important
 
-/* Global Button Styles */
+// Buttons
+.btn
+    border-radius: $border-radius-sm
+    font-weight: 500
+    transition: all $transition-fast
+    border: none
+
 .btn-primary
-    background: var(--purple-primary)
-    border-color: var(--purple-primary)
-    color: #ffffff
-    transition: all 0.3s ease
-    box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3)
+    background: $purple-accent
+    color: #fff
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3)
 
     &:hover, &:focus
-        background: var(--purple-primary-light)
-        border-color: var(--purple-primary-light)
-        color: #ffffff
+        background: $purple-hover
+        color: #fff
         transform: translateY(-2px)
-        box-shadow: 0 4px 16px rgba(124, 58, 237, 0.5)
+        box-shadow: 0 6px 20px rgba(124, 58, 237, 0.4)
 
     &:active
-        background: var(--purple-primary-dark)
+        background: $purple-active
         transform: translateY(0)
-        box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3)
 
     &:disabled
-        background: rgba(124, 58, 237, 0.5)
-        border-color: rgba(124, 58, 237, 0.5)
-        opacity: 0.6
+        background: rgba(124, 58, 237, 0.4)
+        color: rgba(255, 255, 255, 0.6)
         transform: none
+        box-shadow: none
 
 .btn-secondary
-    background: transparent
-    border-color: var(--purple-primary)
-    color: var(--purple-primary)
-    transition: all 0.3s ease
+    background: $bg-tertiary
+    color: $text-primary
+    border: 1px solid $purple-border
 
     &:hover, &:focus
-        background: var(--purple-primary)
-        border-color: var(--purple-primary)
-        color: #ffffff
+        background: $purple-accent
+        border-color: $purple-accent
+        color: #fff
         transform: translateY(-2px)
-        box-shadow: 0 4px 16px rgba(124, 58, 237, 0.4)
 
     &:active
+        background: $purple-active
         transform: translateY(0)
 
 .btn-outline-secondary
-    border-color: rgba(124, 58, 237, 0.3)
-    color: var(--purple-text-secondary)
-    transition: all 0.3s ease
+    background: transparent
+    border: 1px solid $purple-border
+    color: $text-secondary
 
     &:hover, &:focus
-        background: rgba(124, 58, 237, 0.15)
-        border-color: var(--purple-primary)
-        color: var(--purple-primary)
-        transform: translateY(-1px)
-
-    &:active
-        transform: translateY(0)
+        background: $purple-subtle
+        border-color: $purple-accent
+        color: $purple-accent
 
 .btn-link
-    color: var(--purple-primary)
-    transition: all 0.2s ease
+    color: $purple-accent
     text-decoration: none
+    padding: 0.375rem 0.5rem
 
     &:hover, &:focus
-        color: var(--purple-primary-light)
+        color: $purple-hover
         transform: scale(1.1)
 
     &:disabled
-        color: rgba(124, 58, 237, 0.4)
-        opacity: 0.6
+        color: $text-muted
+        opacity: 0.5
         transform: none
 
-/* Form Controls */
+// Form Controls
 .form-control, .form-select
-    background-color: rgba(10, 10, 15, 0.9)
-    border-color: rgba(124, 58, 237, 0.3)
-    color: var(--purple-text-primary)
-    transition: all 0.3s ease
+    background: $bg-tertiary
+    border: 1px solid rgba(255, 255, 255, 0.1)
+    border-radius: $border-radius-sm
+    color: $text-primary
+    transition: all $transition-fast
 
     &:focus
-        background-color: rgba(10, 10, 15, 0.95)
-        border-color: var(--purple-primary)
-        color: var(--purple-text-primary)
-        box-shadow: 0 0 0 0.2rem rgba(124, 58, 237, 0.25)
+        background: $bg-elevated
+        border-color: $purple-accent
+        color: $text-primary
+        box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2)
+        outline: none
 
     &::placeholder
-        color: rgba(224, 224, 224, 0.5)
+        color: $text-muted
 
     &:disabled
-        background-color: rgba(10, 10, 15, 0.5)
-        opacity: 0.6
+        background: $bg-secondary
+        opacity: 0.5
+
+.form-control-lg
+    padding: 0.875rem 1.25rem
+    font-size: 1rem
 
 .input-group-text
-    background-color: rgba(10, 10, 15, 0.9)
-    border-color: rgba(124, 58, 237, 0.3)
-    color: var(--purple-text-secondary)
+    background: $bg-elevated
+    border: 1px solid rgba(255, 255, 255, 0.1)
+    color: $text-secondary
+    font-weight: 500
 
-/* Cards */
+// Form Switch
+.form-check-input
+    background-color: $bg-tertiary
+    border: 2px solid rgba(255, 255, 255, 0.2)
+    width: 3rem
+    height: 1.5rem
+    cursor: pointer
+    transition: all $transition-fast
+
+    &:checked
+        background-color: $purple-accent
+        border-color: $purple-accent
+
+    &:focus
+        border-color: $purple-accent
+        box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2)
+
+.form-check-label
+    color: $text-primary
+    cursor: pointer
+    user-select: none
+
+// Cards
 .card
-    background-color: rgba(10, 10, 15, 0.9)
-    border-color: rgba(124, 58, 237, 0.3)
+    background: $bg-secondary
+    border: 1px solid rgba(255, 255, 255, 0.08)
+    border-radius: $border-radius-md
 
 .card-body
-    background-color: rgba(10, 10, 15, 0.9)
+    background: transparent
+    padding: 1.5rem
 
-/* Tables */
+// Tables
 .table
-    color: var(--purple-text-primary)
+    color: $text-primary
+    --bs-table-bg: transparent
+    --bs-table-hover-bg: #{$bg-hover}
 
-    thead
-        th
-            border-bottom-color: rgba(124, 58, 237, 0.3)
-            color: var(--purple-text-primary)
+    thead th
+        background: $bg-tertiary
+        border-bottom: 2px solid $purple-border
+        color: $text-primary
+        font-weight: 600
+        padding: 1rem 0.75rem
+        white-space: nowrap
 
     tbody
         tr
-            border-color: rgba(124, 58, 237, 0.1)
-            transition: background-color 0.2s ease
+            transition: background $transition-fast
 
             &:hover
-                background-color: rgba(124, 58, 237, 0.08)
+                background: $bg-hover
 
-/* Progress Bars */
+        td
+            border-color: rgba(255, 255, 255, 0.05)
+            padding: 1rem 0.75rem
+            vertical-align: middle
+            color: $text-primary
+
+// Progress Bars - FIXED
 .progress
-    background-color: rgba(124, 58, 237, 0.15)
-    border-radius: 8px
+    background: $bg-tertiary
+    border-radius: 50px
+    height: 1.5rem
+    overflow: hidden
+    position: relative
 
 .progress-bar
-    background: linear-gradient(90deg, var(--purple-primary) 0%, var(--purple-primary-light) 100%)
+    background: linear-gradient(90deg, $purple-accent, $purple-hover)
+    border-radius: 50px
+    transition: width 0.3s ease-out
+    // Removed animation that was causing the jumping issue
 
-/* Links */
-a
-    color: var(--purple-primary)
-    transition: color 0.2s ease
-
-    &:hover
-        color: var(--purple-primary-light)
-
-/* Modal */
+// Modal
 .modal-content
-    background-color: rgba(10, 10, 15, 0.98)
-    border-color: rgba(124, 58, 237, 0.3)
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6)
+    background: $bg-secondary
+    border: 1px solid $purple-border
+    border-radius: $border-radius-lg
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5)
 
 .modal-header
-    border-bottom-color: rgba(124, 58, 237, 0.3)
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1)
+    padding: 1.25rem 1.5rem
+
+    .modal-title
+        color: $text-primary
+        font-weight: 600
+
+.modal-body
+    padding: 1.5rem
 
 .modal-footer
-    border-top-color: rgba(124, 58, 237, 0.3)
+    border-top: 1px solid rgba(255, 255, 255, 0.1)
+    padding: 1rem 1.5rem
 
 .btn-close
     filter: invert(1) grayscale(100%) brightness(200%)
-
-/* Dropdown */
-.dropdown-menu
-    background-color: rgba(10, 10, 15, 0.98)
-    border-color: rgba(124, 58, 237, 0.3)
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4)
-
-.dropdown-item
-    color: var(--purple-text-primary)
-    transition: all 0.2s ease
-
-    &:hover, &:focus
-        background-color: rgba(124, 58, 237, 0.2)
-        color: var(--purple-text-primary)
-
-    &.active
-        background-color: var(--purple-primary)
-        color: #ffffff
-
-/* Alert */
-.alert
-    background-color: rgba(10, 10, 15, 0.9)
-    border-color: rgba(124, 58, 237, 0.3)
-    color: var(--purple-text-primary)
-
-/* Footer */
-.footer
-    background: #000000 !important
-    border-top: 1px solid rgba(124, 58, 237, 0.2)
-
-/* Form Switch/Checkbox */
-.form-check-input
-    background-color: rgba(10, 10, 15, 0.9)
-    border-color: rgba(124, 58, 237, 0.3)
-    transition: all 0.2s ease
-
-    &:checked
-        background-color: var(--purple-primary)
-        border-color: var(--purple-primary)
-
-    &:focus
-        border-color: var(--purple-primary)
-        box-shadow: 0 0 0 0.2rem rgba(124, 58, 237, 0.25)
-
-/* Scrollbar Styling */
-::-webkit-scrollbar
-    width: 8px
-    height: 8px
-
-::-webkit-scrollbar-track
-    background: #000000
-
-::-webkit-scrollbar-thumb
-    background: rgba(124, 58, 237, 0.4)
-    border-radius: 4px
+    opacity: 0.6
 
     &:hover
-        background: rgba(124, 58, 237, 0.6)
+        opacity: 1
 
-/* Selection */
+// Dropdown
+.dropdown-menu
+    background: $bg-secondary
+    border: 1px solid $purple-border
+    border-radius: $border-radius-sm
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4)
+    padding: 0.5rem
+
+.dropdown-item
+    color: $text-primary
+    border-radius: 6px
+    padding: 0.5rem 1rem
+    transition: all $transition-fast
+
+    &:hover, &:focus
+        background: $purple-subtle
+        color: $purple-accent
+
+    &.active
+        background: $purple-accent
+        color: #fff
+
+// Alerts
+.alert
+    background: $bg-secondary
+    border: 1px solid $purple-border
+    border-radius: $border-radius-sm
+    color: $text-primary
+
+.alert-info
+    background: rgba(59, 130, 246, 0.1)
+    border-color: rgba(59, 130, 246, 0.3)
+    color: $info
+
+// Footer
+.footer
+    background: $bg-secondary !important
+    border-top: 1px solid $purple-border
+    padding: 1.5rem 0
+
+// Tooltips
+.tooltip
+    .tooltip-inner
+        background: $bg-elevated
+        border-radius: 6px
+        padding: 0.5rem 0.75rem
+
+// Scrollbar
+::-webkit-scrollbar
+    width: 10px
+    height: 10px
+
+::-webkit-scrollbar-track
+    background: $bg-primary
+
+::-webkit-scrollbar-thumb
+    background: $bg-tertiary
+    border-radius: 5px
+    border: 2px solid $bg-primary
+
+    &:hover
+        background: $bg-elevated
+
+// Selection
 ::selection
     background: rgba(124, 58, 237, 0.4)
-    color: #ffffff
+    color: #fff
+
+// Links
+a
+    color: $purple-accent
+    transition: color $transition-fast
+
+    &:hover
+        color: $purple-hover
+
+// Collapse Animation
+.collapse:not(.show)
+    display: none
+
+.collapsing
+    height: 0
+    overflow: hidden
+    transition: height 0.3s ease
+
+// Horizontal Rule
+hr
+    border-color: rgba(255, 255, 255, 0.1)
+    opacity: 1
+
+// Text utilities
+.text-primary
+    color: $purple-accent !important
+
+.text-success
+    color: $success !important
+
+.text-danger
+    color: $danger !important
+
+.text-warning
+    color: $warning !important
+
+.text-info
+    color: $info !important
+
+.text-muted
+    color: $text-muted !important

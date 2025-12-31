@@ -1,311 +1,512 @@
-.add-url-box
-    max-width: 960px
-    margin: 4rem auto
-    background: rgba(10, 10, 15, 0.9)
-    border: 1px solid rgba(124, 58, 237, 0.3)
-    border-radius: 16px
-    padding: 2rem
-    backdrop-filter: blur(10px)
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5)
-    transition: border-color 0.3s ease
+/* ORION - Component Styles */
+/* Modern, Clean Design */
+
+// Variables (matching global theme)
+$bg-primary: #0d0d12
+$bg-secondary: #16161d
+$bg-tertiary: #1e1e28
+$bg-elevated: #252530
+$bg-card: #181820
+
+$purple-accent: #7c3aed
+$purple-hover: #8b5cf6
+$purple-subtle: rgba(124, 58, 237, 0.12)
+$purple-border: rgba(124, 58, 237, 0.3)
+
+$text-primary: #f0f0f5
+$text-secondary: #a8a8b8
+$text-muted: #6b6b7b
+
+$border-radius-sm: 8px
+$border-radius-md: 12px
+$border-radius-lg: 16px
+$border-radius-xl: 20px
+
+$transition-fast: 0.15s ease
+$transition-normal: 0.25s ease
+
+// Host Layout
+:host
+    display: flex
+    flex-direction: column
+    min-height: 100vh
+    background: $bg-primary
+
+main
+    flex-grow: 1
+    padding-bottom: 3rem
+
+// Navbar Brand
+.navbar-brand
+    font-size: 1.6rem
+    font-weight: 800
+    color: $text-primary !important
+    letter-spacing: 4px
+    text-transform: uppercase
+    position: relative
+    padding: 0.5rem 0
+
+    &::after
+        content: ''
+        position: absolute
+        bottom: 0
+        left: 0
+        width: 0
+        height: 2px
+        background: $purple-accent
+        transition: width $transition-normal
 
     &:hover
-        border-color: rgba(124, 58, 237, 0.5)
+        color: $purple-accent !important
 
+        &::after
+            width: 100%
+
+// Download Metrics in Navbar
+.download-metrics
+    display: flex
+    align-items: center
+    gap: 12px
+    margin-left: auto
+    flex-wrap: wrap
+
+    .metric
+        display: flex
+        align-items: center
+        gap: 8px
+        font-size: 0.875rem
+        color: $text-primary
+        padding: 6px 14px
+        background: $bg-tertiary
+        border-radius: 20px
+        border: 1px solid rgba(255, 255, 255, 0.06)
+        transition: all $transition-fast
+        font-weight: 500
+
+        &:hover
+            background: $bg-elevated
+            transform: translateY(-1px)
+
+        fa-icon
+            font-size: 0.875rem
+
+        span
+            white-space: nowrap
+
+// Main URL Input Box
+.add-url-box
+    max-width: 900px
+    margin: 3rem auto
+    background: $bg-card
+    border: 1px solid rgba(255, 255, 255, 0.08)
+    border-radius: $border-radius-xl
+    padding: 2rem
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3)
+    transition: all $transition-normal
+
+    &:hover
+        border-color: rgba(124, 58, 237, 0.25)
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4)
+
+// URL Input Group
 .add-url-component
     margin: 0.5rem auto
 
 .add-url-group
     width: 100%
 
-button.add-url
-    width: 100%
-
-.folder-dropdown-menu
-    width: 500px
-    max-width: calc(100vw - 3rem)
-
-.folder-dropdown-menu .input-group
-    display: flex
-    padding-left: 5px
-    padding-right: 5px
-
-.metube-section-header
-    font-size: 1.8rem
-    font-weight: 600
-    position: relative
-    background: rgba(124, 58, 237, 0.15)
-    padding: 1rem 1.5rem
-    margin-top: 3.5rem
-    border-radius: 12px 12px 0 0
-    border-bottom: 2px solid rgba(124, 58, 237, 0.4)
-    color: #ffffff
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3)
-
-.metube-section-header:before
-    content: ""
-    position: absolute
-    top: 0
-    bottom: 0
-    left: -9999px
-    right: 0
-    border-left: 9999px solid rgba(124, 58, 237, 0.15)
-    box-shadow: none
-
-button:hover
-    text-decoration: none
-
-th
-    border-top: 0
-    border-bottom-width: 3px !important
-    border-bottom-color: rgba(124, 58, 237, 0.4) !important
-    vertical-align: middle !important
-    white-space: nowrap
-    color: #ffffff
-    font-weight: 600
-
-td
-    vertical-align: middle
-    color: rgba(255, 255, 255, 0.9)
-
-.disabled
-    opacity: 0.5
-    pointer-events: none
-
-.form-switch
-    input
-        margin-top: 5px
-
-    .form-check-input
-        background-color: rgba(10, 10, 15, 0.9)
-        border-color: rgba(124, 58, 237, 0.3)
-        cursor: pointer
-
-        &:checked
-            background-color: #7c3aed
-            border-color: #7c3aed
+.input-group-lg
+    .form-control
+        background: $bg-tertiary
+        border: 1px solid rgba(255, 255, 255, 0.1)
+        border-radius: $border-radius-md 0 0 $border-radius-md !important
+        padding: 1rem 1.25rem
+        font-size: 1rem
+        color: $text-primary
 
         &:focus
-            border-color: #7c3aed
-            box-shadow: 0 0 0 0.2rem rgba(124, 58, 237, 0.25)
+            background: $bg-elevated
+            border-color: $purple-accent
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15)
 
-.download-progressbar
-    width: 12rem
-    margin-left: auto
-    border-radius: 8px
-    overflow: hidden
+        &::placeholder
+            color: $text-muted
 
-    .progress-bar
-        background: linear-gradient(90deg, #7c3aed 0%, #8b5cf6 100%)
-        box-shadow: 0 2px 8px rgba(124, 58, 237, 0.4)
+    .btn
+        border-radius: 0 $border-radius-md $border-radius-md 0 !important
+        padding: 1rem 2rem
+        font-weight: 600
 
-.batch-panel
-    margin-top: 15px
-    border: 1px solid rgba(124, 58, 237, 0.3)
-    border-radius: 12px
-    padding: 15px
-    background-color: rgba(10, 10, 15, 0.9)
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4)
-
-.batch-panel-header
-    border-bottom: 1px solid rgba(124, 58, 237, 0.3)
-    padding-bottom: 8px
-    margin-bottom: 15px
-    h4
-        font-size: 1.5rem
-        margin: 0
-        color: #ffffff
-
-.batch-panel-body
-    textarea.form-control
-        resize: vertical
-
-.batch-status
-    font-size: 0.9rem
-    color: rgba(224, 224, 224, 0.7)
-
-.d-flex.my-3
-    margin-top: 1rem
-    margin-bottom: 1rem
-
-.modal.fade.show
-    background-color: rgba(0, 0, 0, 0.75)
-    backdrop-filter: blur(4px)
-
-.modal-header
-    border-bottom: 1px solid rgba(124, 58, 237, 0.3)
-
-.modal-body
-    textarea.form-control
-        resize: vertical
-
-.add-url
-    display: inline-flex
-    align-items: center
-    justify-content: center
+// Add URL Button
+button.add-url
+    width: 100%
 
     .spinner-border
         margin-right: 0.5rem
 
-/* Input Group Enhancements */
-.input-group-lg
-    .form-control, .input-group-text
-        border-radius: 12px
-
-    .btn
-        border-radius: 0 12px 12px 0
-
+// Options Row
 .input-group
     .input-group-text
-        border-radius: 8px 0 0 8px
+        background: $bg-elevated
+        border: 1px solid rgba(255, 255, 255, 0.1)
+        border-right: none
+        border-radius: $border-radius-sm 0 0 $border-radius-sm
+        color: $text-secondary
+        font-weight: 500
+        white-space: nowrap
 
     .form-select, .form-control
-        border-radius: 0 8px 8px 0
+        background: $bg-tertiary
+        border: 1px solid rgba(255, 255, 255, 0.1)
+        border-radius: 0 $border-radius-sm $border-radius-sm 0
+        color: $text-primary
 
-/* ng-select Purple Theme */
-::ng-deep .ng-select
-    flex: 1
+        &:focus
+            border-color: $purple-accent
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15)
 
-    .ng-select-container
-        min-height: 38px
-        background-color: rgba(10, 10, 15, 0.9) !important
-        border-color: rgba(124, 58, 237, 0.3) !important
-        color: #ffffff !important
-        transition: all 0.3s ease
+// Advanced Options Card
+.card
+    background: $bg-tertiary !important
+    border: 1px solid rgba(255, 255, 255, 0.08) !important
+    border-radius: $border-radius-md !important
+    margin-top: 1rem
 
-        &:hover
-            border-color: rgba(124, 58, 237, 0.5) !important
+.card-body
+    padding: 1.5rem !important
 
-        .ng-value-container
-            .ng-placeholder
-                color: rgba(224, 224, 224, 0.5) !important
+// Form Switch Styling
+.form-switch
+    .form-check-input
+        width: 2.5rem
+        height: 1.25rem
+        margin-top: 0.25rem
+        background-color: $bg-elevated
+        border: 1px solid rgba(255, 255, 255, 0.15)
+        cursor: pointer
+        transition: all $transition-fast
 
-            .ng-input > input
-                color: #ffffff !important
+        &:checked
+            background-color: $purple-accent
+            border-color: $purple-accent
 
-        &.ng-select-focused
-            border-color: #7c3aed !important
-            box-shadow: 0 0 0 0.2rem rgba(124, 58, 237, 0.25) !important
+        &:focus
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2)
 
-    .ng-value
-        white-space: nowrap
-        overflow: visible
-        color: #ffffff !important
+    .form-check-label
+        color: $text-primary
+        font-weight: 500
+        margin-left: 0.5rem
+        cursor: pointer
 
-    .ng-arrow-wrapper
-        .ng-arrow
-            border-color: rgba(124, 58, 237, 0.6) transparent transparent !important
+        fa-icon
+            color: $purple-accent
+            margin-right: 0.25rem
 
-    .ng-dropdown-panel
-        background-color: rgba(10, 10, 15, 0.98) !important
-        border-color: rgba(124, 58, 237, 0.3) !important
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6) !important
-
-        .ng-dropdown-panel-items
-            max-height: 300px
-
-            .ng-option
-                white-space: nowrap
-                overflow: visible
-                text-overflow: ellipsis
-                color: #ffffff !important
-                background-color: transparent !important
-                transition: background-color 0.2s ease
-
-                &:hover, &.ng-option-highlighted
-                    background-color: rgba(124, 58, 237, 0.2) !important
-                    color: #ffffff !important
-
-                &.ng-option-selected
-                    background-color: rgba(124, 58, 237, 0.3) !important
-                    color: #ffffff !important
-
-:host
-    display: flex
-    flex-direction: column
-    min-height: 100vh
-
-main
-    flex-grow: 1
-    padding-bottom: 2rem
-
-.navbar-brand
+// Section Headers
+.metube-section-header
     font-size: 1.5rem
     font-weight: 700
-    color: #ffffff !important
-    letter-spacing: 2px
-    text-transform: uppercase
-    transition: color 0.2s ease
+    color: $text-primary
+    background: linear-gradient(135deg, $purple-subtle, transparent)
+    padding: 1.25rem 1.5rem
+    margin-top: 3rem
+    border-radius: $border-radius-md $border-radius-md 0 0
+    border-left: 4px solid $purple-accent
+    position: relative
 
-    &:hover
-        color: #7c3aed !important
+    &::before
+        display: none
 
+// Action Buttons Row
+.border-bottom
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important
+    padding: 1rem 0 !important
+
+// Table Styling
+.table
+    margin: 0
+
+    thead th
+        background: $bg-tertiary
+        border-bottom: 2px solid $purple-border
+        color: $text-primary
+        font-weight: 600
+        font-size: 0.875rem
+        text-transform: uppercase
+        letter-spacing: 0.5px
+        padding: 1rem
+
+    tbody
+        tr
+            transition: background $transition-fast
+
+            &:hover
+                background: rgba(124, 58, 237, 0.08)
+
+            &.disabled
+                opacity: 0.4
+                pointer-events: none
+
+        td
+            padding: 1rem
+            color: $text-primary
+            border-color: rgba(255, 255, 255, 0.04)
+            vertical-align: middle
+
+// Progress Bar - FIXED (no jumping animation)
+.download-progressbar
+    width: 180px
+    min-width: 180px
+    height: 28px
+    background: $bg-elevated
+    border-radius: 50px
+    overflow: hidden
+    position: relative
+
+    .progress-bar
+        height: 100%
+        background: linear-gradient(90deg, $purple-accent, $purple-hover)
+        border-radius: 50px
+        display: flex
+        align-items: center
+        justify-content: center
+        font-size: 0.75rem
+        font-weight: 600
+        color: #fff
+        transition: width 0.3s ease-out
+        // Removed striped animation to fix the jumping issue
+
+    // Override ngb-progressbar striped animation
+    &.progress-bar-striped,
+    & .progress-bar-striped
+        background-image: none !important
+        animation: none !important
+
+// Override for ngb-progressbar component
+::ng-deep ngb-progressbar
+    .progress
+        background: $bg-elevated
+        height: 28px
+        border-radius: 50px
+        overflow: hidden
+
+    .progress-bar
+        background: linear-gradient(90deg, $purple-accent, $purple-hover)
+        transition: width 0.3s ease-out
+        
+        // Fix: Disable striped animation that causes jumping
+        &.progress-bar-striped,
+        &.progress-bar-animated
+            background-image: none !important
+            animation: none !important
+
+// Batch Panel
+.batch-panel
+    margin-top: 1rem
+    background: $bg-tertiary
+    border: 1px solid rgba(255, 255, 255, 0.08)
+    border-radius: $border-radius-md
+    padding: 1.5rem
+
+.batch-panel-header
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08)
+    padding-bottom: 0.75rem
+    margin-bottom: 1rem
+
+    h4
+        font-size: 1.25rem
+        font-weight: 600
+        margin: 0
+        color: $text-primary
+
+.batch-status
+    font-size: 0.875rem
+    color: $text-secondary
+
+// Modal Styling
+.modal.fade.show
+    background-color: rgba(0, 0, 0, 0.8)
+    backdrop-filter: blur(8px)
+
+.modal-header
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1)
+
+    .modal-title
+        color: $text-primary
+        font-weight: 600
+
+.modal-body
+    textarea.form-control
+        resize: vertical
+        min-height: 150px
+        background: $bg-elevated
+        border: 1px solid rgba(255, 255, 255, 0.1)
+        color: $text-primary
+
+        &:focus
+            border-color: $purple-accent
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15)
+
+// Footer
 .footer
     width: 100%
-    padding: 20px 0
-    background: #000000 !important
-    border-top: 1px solid rgba(124, 58, 237, 0.2)
+    padding: 1.5rem 0
+    background: $bg-secondary !important
+    border-top: 1px solid rgba(255, 255, 255, 0.08)
 
     .footer-content
         display: flex
         justify-content: center
         align-items: center
-        color: rgba(255, 255, 255, 0.7)
+        color: $text-secondary
         font-size: 0.9rem
+        font-weight: 500
 
-.download-metrics
-    display: flex
-    align-items: center
-    gap: 16px
-    margin-left: 24px
-    flex-wrap: wrap
+// ng-select Custom Styling
+::ng-deep .ng-select
+    flex: 1
 
-    .metric
-        display: flex
-        align-items: center
-        gap: 6px
-        font-size: 0.9rem
-        color: rgba(224, 224, 224, 0.9)
-        padding: 4px 12px
-        background: rgba(124, 58, 237, 0.1)
-        border-radius: 8px
-        border: 1px solid rgba(124, 58, 237, 0.2)
-        transition: all 0.2s ease
+    .ng-select-container
+        min-height: 38px
+        background: $bg-tertiary !important
+        border: 1px solid rgba(255, 255, 255, 0.1) !important
+        border-radius: 0 $border-radius-sm $border-radius-sm 0 !important
+        color: $text-primary !important
+        transition: all $transition-fast
 
         &:hover
-            background: rgba(124, 58, 237, 0.2)
-            border-color: rgba(124, 58, 237, 0.4)
-            transform: translateY(-1px)
+            border-color: rgba(255, 255, 255, 0.2) !important
 
-        fa-icon
-            font-size: 1rem
+        .ng-value-container
+            .ng-placeholder
+                color: $text-muted !important
 
-        span
-            white-space: nowrap
+            .ng-input > input
+                color: $text-primary !important
 
-/* Table Enhancements */
-.table
-    border-radius: 8px
-    overflow: hidden
+    &.ng-select-focused
+        .ng-select-container
+            border-color: $purple-accent !important
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15) !important
 
-    tbody tr
-        transition: background-color 0.2s ease
+    .ng-value
+        color: $text-primary !important
+
+    .ng-arrow-wrapper .ng-arrow
+        border-color: $text-secondary transparent transparent !important
+
+    .ng-dropdown-panel
+        background: $bg-secondary !important
+        border: 1px solid $purple-border !important
+        border-radius: $border-radius-sm !important
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important
+        margin-top: 4px
+
+        .ng-dropdown-panel-items
+            max-height: 300px
+
+            .ng-option
+                color: $text-primary !important
+                background: transparent !important
+                padding: 0.75rem 1rem
+                transition: background $transition-fast
+
+                &:hover, &.ng-option-marked
+                    background: $purple-subtle !important
+
+                &.ng-option-selected
+                    background: rgba(124, 58, 237, 0.25) !important
+                    font-weight: 500
+
+// Responsive Adjustments
+@media (max-width: 768px)
+    .add-url-box
+        margin: 1.5rem 1rem
+        padding: 1.5rem
+
+    .download-metrics
+        gap: 8px
+        margin-left: 0
+        margin-top: 0.75rem
+
+        .metric
+            padding: 4px 10px
+            font-size: 0.8rem
+
+    .metube-section-header
+        font-size: 1.25rem
+        padding: 1rem 1.25rem
+
+    .download-progressbar
+        width: 120px
+        min-width: 120px
+
+    .input-group-text
+        font-size: 0.875rem
+        padding: 0.5rem 0.75rem
+
+@media (max-width: 576px)
+    .navbar-brand
+        font-size: 1.25rem
+        letter-spacing: 2px
+
+    .add-url-box
+        margin: 1rem 0.5rem
+        padding: 1rem
+        border-radius: $border-radius-md
+
+    .input-group-lg
+        .form-control
+            padding: 0.75rem 1rem
+
+        .btn
+            padding: 0.75rem 1rem
+
+// Disabled state
+.disabled
+    opacity: 0.4
+    pointer-events: none
+    cursor: not-allowed
+
+// Button hover effects
+button:hover
+    text-decoration: none
+
+// Link button colors
+.btn-link
+    &.text-primary
+        color: $purple-accent !important
 
         &:hover
-            background-color: rgba(124, 58, 237, 0.1) !important
+            color: $purple-hover !important
 
-/* Card Enhancements for Advanced Options */
-.card
-    background: rgba(10, 10, 15, 0.9) !important
-    border: 1px solid rgba(124, 58, 237, 0.3) !important
-    border-radius: 12px !important
-    backdrop-filter: blur(10px)
+    &.text-success
+        color: #22c55e !important
 
-/* Border bottom for action buttons section */
-.border-bottom
-    border-bottom: 1px solid rgba(124, 58, 237, 0.2) !important
+    &.text-danger
+        color: #ef4444 !important
 
-/* Horizontal Rule */
+// Table overflow container
+.overflow-auto
+    border-radius: 0 0 $border-radius-md $border-radius-md
+    background: $bg-secondary
+    border: 1px solid rgba(255, 255, 255, 0.05)
+    border-top: none
+
+// Horizontal rule in cards
 hr
-    border-color: rgba(124, 58, 237, 0.3)
-    opacity: 1
+    border-color: rgba(255, 255, 255, 0.1)
+    margin: 1rem 0
+
+// Folder dropdown (if re-enabled)
+.folder-dropdown-menu
+    width: 500px
+    max-width: calc(100vw - 2rem)
+    background: $bg-secondary
+    border: 1px solid $purple-border
+    border-radius: $border-radius-sm
+
+    .input-group
+        display: flex
+        padding: 0.5rem
