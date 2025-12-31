@@ -266,12 +266,13 @@ export class App implements AfterViewInit, OnInit {
 
   // Clear all downloads from the queue
   clearAllDownloads() {
-    if (confirm('Möchtest du wirklich ALLE Downloads abbrechen und die Warteschlange leeren?')) {
-      // Delete all items from the queue
-      const allKeys = Array.from(this.downloads.queue.keys());
-      if (allKeys.length > 0) {
-        this.downloads.delById('queue', allKeys).subscribe();
-      }
+    if (confirm('Möchtest du wirklich ALLE Downloads abbrechen und die Warteschlange leeren? Dies stoppt auch laufende Playlist-Importe.')) {
+      // Use the cancel_all API which also sets a stop flag to prevent new items
+      this.downloads.cancelAll().subscribe((status: Status) => {
+        if (status.status === 'error') {
+          alert(`Fehler beim Abbrechen: ${status.msg}`);
+        }
+      });
     }
   }
 

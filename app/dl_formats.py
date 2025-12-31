@@ -104,8 +104,10 @@ def get_opts(format: str, quality: str, ytdl_opts: dict, download_subtitles: boo
     if download_subtitles:
         opts["writesubtitles"] = True
         opts["writeautomaticsub"] = True  # Also get auto-generated subtitles
-        opts["subtitleslangs"] = ["de", "en", "all"]  # German, English, or all available
+        opts["subtitleslangs"] = ["de", "en"]  # German and English only
         opts["subtitlesformat"] = "best"
+        # Don't fail if subtitles are unavailable
+        opts["ignoreerrors"] = "only_download"
         # Embed subtitles into video if it's a video format
         if format not in AUDIO_FORMATS and format != "thumbnail":
             postprocessors.append({"key": "FFmpegEmbedSubtitle"})

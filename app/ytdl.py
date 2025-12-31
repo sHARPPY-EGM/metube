@@ -252,6 +252,8 @@ class DownloadQueue:
         self.pending = PersistentQueue(self.config.STATE_DIR + '/pending')
         self.active_downloads = set()
         self.semaphore = None
+        # Stop flag to halt all playlist processing
+        self.stop_flag = False
         # For sequential mode, use an asyncio lock to ensure one-at-a-time execution.
         if self.config.DOWNLOAD_MODE == 'sequential':
             self.seq_lock = asyncio.Lock()
@@ -378,6 +380,11 @@ class DownloadQueue:
         await self.notifier.added(dl)
 
     async def __add_entry(self, entry, quality, format, folder, custom_name_prefix, playlist_strict_mode, playlist_item_limit, auto_start, download_subtitles, download_thumbnails, already):
+        # Check stop flag before processing
+        if self.stop_flag:
+            log.info('Stop flag is set, skipping entry')
+            return {'status': 'ok', 'msg': 'Stopped by user'}
+        
         if not entry:
             return {'status': 'error', 'msg': "Invalid/empty data was given."}
 
@@ -407,6 +414,10 @@ class DownloadQueue:
                 log.info(f'Playlist item limit is set. Processing only first {playlist_item_limit} entries')
                 entries = entries[:playlist_item_limit]
             for index, etr in enumerate(entries, start=1):
+                # Check stop flag in each iteration
+                if self.stop_flag:
+                    log.info('Stop flag is set, stopping playlist processing')
+                    break
                 etr["_type"] = "video"
                 etr["playlist"] = entry["id"]
                 etr["playlist_index"] = '{{0:0{0:d}d}}'.format(playlist_index_digits).format(index)
@@ -420,7 +431,7 @@ class DownloadQueue:
         elif etype == 'video' or (etype.startswith('url') and 'id' in entry and 'title' in entry):
             log.debug('Processing as a video')
             key = entry.get('webpage_url') or entry['url']
-            if not self.queue.exists(key):
+            if not self.queue.exists(key) and not self.stop_flag:
                 dl = DownloadInfo(entry['id'], entry.get('title') or entry['id'], key, quality, format, folder, custom_name_prefix, error, entry, playlist_item_limit, download_subtitles, download_thumbnails)
                 await self.__add_download(dl, auto_start)
             return {'status': 'ok'}
@@ -465,6 +476,32 @@ class DownloadQueue:
             else:
                 self.queue.delete(id)
                 await self.notifier.canceled(id)
+        return {'status': 'ok'}
+
+    async def cancel_all(self):
+        """Cancel all downloads and stop any ongoing playlist processing."""
+        log.info('Canceling all downloads and setting stop flag')
+        # Set stop flag to prevent new items from being added
+        self.stop_flag = True
+        
+        # Cancel all items in queue
+        for id in list(self.queue.dict.keys()):
+            if self.queue.get(id).started():
+                self.queue.get(id).cancel()
+            else:
+                self.queue.delete(id)
+                await self.notifier.canceled(id)
+        
+        # Cancel all pending items
+        for id in list(self.pending.dict.keys()):
+            self.pending.delete(id)
+            await self.notifier.canceled(id)
+        
+        # Reset stop flag after a short delay to allow new downloads
+        await asyncio.sleep(0.5)
+        self.stop_flag = False
+        log.info('Stop flag reset, ready for new downloads')
+        
         return {'status': 'ok'}
 
     async def clear(self, ids):

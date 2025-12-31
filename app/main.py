@@ -284,6 +284,12 @@ async def start(request):
     status = await dqueue.start_pending(ids)
     return web.Response(text=serializer.encode(status))
 
+@routes.post(config.URL_PREFIX + 'cancel_all')
+async def cancel_all(request):
+    log.info("Received request to cancel all downloads")
+    status = await dqueue.cancel_all()
+    return web.Response(text=serializer.encode(status))
+
 @routes.get(config.URL_PREFIX + 'history')
 async def history(request):
     history = { 'done': [], 'queue': [], 'pending': []}

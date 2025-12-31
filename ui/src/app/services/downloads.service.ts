@@ -149,6 +149,12 @@ export class DownloadsService {
     this[where].forEach((dl: Download) => { if (filter(dl)) ids.push(dl.url) });
     return this.delById(where, ids);
   }
+
+  public cancelAll() {
+    return this.http.post<Status>('cancel_all', {}).pipe(
+      catchError(this.handleHTTPError)
+    );
+  }
   public addDownloadByUrl(url: string): Promise<{
     response: Status} | {
     status: string;

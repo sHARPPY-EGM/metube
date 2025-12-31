@@ -281,7 +281,7 @@
   <!-- Downloads Section -->
   <div class="metube-section-header">Downloads</div>
   <div class="px-3 py-3 border-bottom d-flex flex-wrap gap-3">
-    <button type="button" class="btn btn-link text-danger px-0" (click)="clearAllDownloads()" [disabled]="downloads.queue.size === 0">
+    <button type="button" class="btn btn-link text-danger px-0" (click)="clearAllDownloads()">
       <fa-icon [icon]="faTimesCircle" class="me-1" /> Alle abbrechen
     </button>
     <button type="button" class="btn btn-link px-0" disabled #queueDelSelected (click)="delSelectedDownloads('queue')">
