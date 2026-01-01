@@ -2,6 +2,7 @@ import os
 import yt_dlp
 from collections import OrderedDict
 import shelve
+import dbm
 import time
 import asyncio
 import multiprocessing
@@ -221,19 +222,22 @@ class PersistentQueue:
         return self.dict.items()
 
     def saved_items(self):
-        with shelve.open(self.path, 'r') as shelf:
-            return sorted(shelf.items(), key=lambda item: item[1].timestamp)
+        try:
+            with shelve.open(self.path, 'r') as shelf:
+                return sorted(shelf.items(), key=lambda item: item[1].timestamp)
+        except (FileNotFoundError, dbm.error):
+            return []
 
     def put(self, value):
         key = value.info.url
         self.dict[key] = value
-        with shelve.open(self.path, 'w') as shelf:
+        with shelve.open(self.path, 'c') as shelf:
             shelf[key] = value.info
 
     def delete(self, key):
         if key in self.dict:
             del self.dict[key]
-            with shelve.open(self.path, 'w') as shelf:
+            with shelve.open(self.path, 'c') as shelf:
                 shelf.pop(key, None)
 
     def next(self):
