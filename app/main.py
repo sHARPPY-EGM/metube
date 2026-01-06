@@ -785,6 +785,9 @@ async def admin_page(request):
         if os.path.isfile(static_file_path):
             return web.FileResponse(static_file_path)
         raise web.HTTPNotFound()
+    
+    # Return the main HTML file for /admin route
+    return web.FileResponse(os.path.join(config.BASE_DIR, 'ui/dist/metube/browser/index.html'))
 
 @routes.get(config.URL_PREFIX + 'wartungsmodus')
 async def maintenance_page(request):

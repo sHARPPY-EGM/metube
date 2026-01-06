@@ -77,16 +77,17 @@ export class AdminComponent implements OnInit {
       this.settings = settings;
       // Set maintenance date/time if maintenance_until exists
       if (settings.maintenance_until) {
+        // Parse UTC ISO string and display as UTC (no timezone conversion)
         const date = new Date(settings.maintenance_until);
-        // Convert to local date format (YYYY-MM-DD)
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
+        // Use UTC methods to get UTC date/time values
+        const year = date.getUTCFullYear();
+        const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+        const day = String(date.getUTCDate()).padStart(2, '0');
         this.maintenanceDate = `${year}-${month}-${day}`;
         
-        // Convert to local time format (HH:mm)
-        const hours = String(date.getHours()).padStart(2, '0');
-        const minutes = String(date.getMinutes()).padStart(2, '0');
+        // Use UTC methods to get UTC time values
+        const hours = String(date.getUTCHours()).padStart(2, '0');
+        const minutes = String(date.getUTCMinutes()).padStart(2, '0');
         this.maintenanceTime = `${hours}:${minutes}`;
       } else {
         this.maintenanceDate = '';
@@ -320,8 +321,9 @@ export class AdminComponent implements OnInit {
     }
     
     try {
-      // Combine date and time
-      const dateTimeString = `${this.maintenanceDate}T${this.maintenanceTime}`;
+      // Combine date and time - treat it as UTC to avoid timezone conversion
+      // This way, if user enters 13:50, it stays 13:50 UTC (not converted to 12:50 UTC)
+      const dateTimeString = `${this.maintenanceDate}T${this.maintenanceTime}:00.000Z`;
       const date = new Date(dateTimeString);
       
       if (isNaN(date.getTime())) {
