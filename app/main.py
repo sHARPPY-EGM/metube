@@ -707,6 +707,12 @@ async def api_admin_update_settings(request):
             maintenance_mode = bool(post['maintenance_mode'])
             maintenance_until = post.get('maintenance_until')  # ISO timestamp string or None
             auth_manager.set_maintenance_mode(maintenance_mode, maintenance_until)
+            
+            # Emit maintenance mode change to all connected clients
+            await sio.emit('maintenance_mode_changed', serializer.encode({
+                'maintenance_mode': auth_manager.is_maintenance_mode(),
+                'maintenance_until': auth_manager.get_maintenance_until()
+            }))
         
         return web.json_response({'status': 'ok'})
     except Exception as e:

@@ -1,7 +1,8 @@
 import { DecimalPipe, KeyValuePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { AfterViewInit, Component, ElementRef, viewChild, inject, OnInit, ChangeDetectorRef } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, viewChild, inject, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { Observable, map, distinctUntilChanged } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -18,6 +19,7 @@ import { LoginComponent } from './components/login/login.component';
 import { AdminComponent } from './components/admin/admin.component';
 import { MaintenanceComponent } from './components/maintenance/maintenance.component';
 import { AuthService } from './services/auth.service';
+import { MeTubeSocket } from './services/metube-socket.service';
 
 @Component({
   selector: 'app-root',
@@ -153,6 +155,31 @@ export class App implements AfterViewInit, OnInit {
     // Set dark theme permanently
     document.documentElement.setAttribute('data-bs-theme', 'dark');
     this.checkAuthAndRoute();
+    
+    // Listen for maintenance mode changes via Socket.IO
+    this.socket.fromEvent('maintenance_mode_changed')
+      .pipe(takeUntilDestroyed())
+      .subscribe((strdata: string) => {
+        try {
+          const data = JSON.parse(strdata);
+          if (data.maintenance_mode) {
+            // Maintenance mode activated - redirect all users to maintenance page
+            // (except if they're on admin page)
+            if (this.currentView !== 'admin' && this.currentView !== 'wartungsmodus') {
+              this.currentView = 'maintenance';
+              window.location.href = this.getUrlPrefix() + 'wartungsmodus';
+            }
+          } else {
+            // Maintenance mode deactivated - redirect from maintenance page to main
+            if (this.currentView === 'maintenance') {
+              this.currentView = 'main';
+              window.location.href = this.getUrlPrefix();
+            }
+          }
+        } catch (e) {
+          console.error('Error parsing maintenance_mode_changed event:', e);
+        }
+      });
   }
   
   checkAuthAndRoute() {

@@ -227,6 +227,19 @@
   .time-input
     width: 100%
     padding-right: 2.5rem
+    // Hide native browser time picker icon
+    &::-webkit-calendar-picker-indicator
+      display: none
+    &::-webkit-inner-spin-button
+      display: none
+    &::-webkit-outer-spin-button
+      display: none
+    // For Firefox
+    &::-moz-calendar-picker
+      display: none
+    // For Edge
+    &::-ms-clear
+      display: none
 
   .time-icon
     position: absolute
@@ -234,6 +247,8 @@
     color: $text-secondary
     cursor: pointer
     transition: color $transition-fast
+    z-index: 10
+    pointer-events: auto
     
     &.clickable:hover
       color: $purple-accent
