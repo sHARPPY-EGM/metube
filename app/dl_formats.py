@@ -128,7 +128,20 @@ def get_opts(format: str, quality: str, ytdl_opts: dict, download_subtitles: boo
         if format not in AUDIO_FORMATS and format != "thumbnail":
             postprocessors.append({"key": "FFmpegEmbedSubtitle"})
 
-    opts["postprocessors"] = postprocessors + (
-        opts["postprocessors"] if "postprocessors" in opts else []
-    )
+    # Merge with existing postprocessors from YTDL_OPTIONS, but filter out
+    # FFmpegExtractAudio for video formats to prevent audio extraction
+    existing_postprocessors = opts.get("postprocessors", [])
+    
+    # If we have a video format (not audio), remove FFmpegExtractAudio from existing postprocessors
+    if format not in AUDIO_FORMATS and format != "thumbnail":
+        filtered_count = len(existing_postprocessors)
+        existing_postprocessors = [
+            pp for pp in existing_postprocessors 
+            if isinstance(pp, dict) and pp.get("key") != "FFmpegExtractAudio"
+        ]
+        if len(existing_postprocessors) != filtered_count:
+            log.info(f'Filtered out FFmpegExtractAudio from YTDL_OPTIONS for video format: {format}')
+    
+    opts["postprocessors"] = postprocessors + existing_postprocessors
+    log.info(f'Final postprocessors for format {format}: {[pp.get("key") if isinstance(pp, dict) else str(pp) for pp in opts["postprocessors"]]}')
     return opts
