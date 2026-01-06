@@ -128,20 +128,28 @@ def get_opts(format: str, quality: str, ytdl_opts: dict, download_subtitles: boo
         if format not in AUDIO_FORMATS and format != "thumbnail":
             postprocessors.append({"key": "FFmpegEmbedSubtitle"})
 
-    # Merge with existing postprocessors from YTDL_OPTIONS, but filter out
-    # FFmpegExtractAudio for video formats to prevent audio extraction
+    # Merge with existing postprocessors from YTDL_OPTIONS
+    # Important: We need to handle FFmpegExtractAudio carefully:
+    # - For video formats: Remove ALL FFmpegExtractAudio (we don't want audio extraction)
+    # - For audio formats: Remove any FFmpegExtractAudio from YTDL_OPTIONS and use only ours
+    #   (this prevents MP3 from being created when user wants M4A, Opus, etc.)
     existing_postprocessors = opts.get("postprocessors", [])
     
-    # If we have a video format (not audio), remove FFmpegExtractAudio from existing postprocessors
-    if format not in AUDIO_FORMATS and format != "thumbnail":
-        filtered_count = len(existing_postprocessors)
-        existing_postprocessors = [
-            pp for pp in existing_postprocessors 
-            if isinstance(pp, dict) and pp.get("key") != "FFmpegExtractAudio"
-        ]
-        if len(existing_postprocessors) != filtered_count:
-            log.info(f'Filtered out FFmpegExtractAudio from YTDL_OPTIONS for video format: {format}')
+    # Always remove FFmpegExtractAudio from existing postprocessors
+    # For audio formats, we've already added our own with the correct codec
+    # For video formats, we don't want any audio extraction
+    filtered_postprocessors = [
+        pp for pp in existing_postprocessors 
+        if not (isinstance(pp, dict) and pp.get("key") == "FFmpegExtractAudio")
+    ]
     
-    opts["postprocessors"] = postprocessors + existing_postprocessors
+    if len(filtered_postprocessors) != len(existing_postprocessors):
+        removed_count = len(existing_postprocessors) - len(filtered_postprocessors)
+        if format in AUDIO_FORMATS:
+            log.info(f'Removed {removed_count} FFmpegExtractAudio postprocessor(s) from YTDL_OPTIONS for audio format {format} (using our own with correct codec)')
+        else:
+            log.info(f'Removed {removed_count} FFmpegExtractAudio postprocessor(s) from YTDL_OPTIONS for video format {format} (no audio extraction needed)')
+    
+    opts["postprocessors"] = postprocessors + filtered_postprocessors
     log.info(f'Final postprocessors for format {format}: {[pp.get("key") if isinstance(pp, dict) else str(pp) for pp in opts["postprocessors"]]}')
     return opts
