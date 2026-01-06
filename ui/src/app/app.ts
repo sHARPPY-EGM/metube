@@ -162,23 +162,26 @@ export class App implements AfterViewInit, OnInit {
       .pipe(takeUntilDestroyed())
       .subscribe((strdata: string) => {
         try {
-          const data = JSON.parse(strdata);
+          const data = typeof strdata === 'string' ? JSON.parse(strdata) : strdata;
+          console.log('Maintenance mode changed event received:', data);
           if (data.maintenance_mode) {
             // Maintenance mode activated - redirect all users to maintenance page
             // (except if they're on admin page)
             if (this.currentView !== 'admin' && this.currentView !== 'maintenance') {
+              console.log('Redirecting to maintenance page');
               this.currentView = 'maintenance';
               window.location.href = this.getUrlPrefix() + 'wartungsmodus';
             }
           } else {
             // Maintenance mode deactivated - redirect from maintenance page to main
             if (this.currentView === 'maintenance') {
+              console.log('Redirecting from maintenance page to main');
               this.currentView = 'main';
               window.location.href = this.getUrlPrefix();
             }
           }
         } catch (e) {
-          console.error('Error parsing maintenance_mode_changed event:', e);
+          console.error('Error parsing maintenance_mode_changed event:', e, strdata);
         }
       });
   }
@@ -479,26 +482,76 @@ export class App implements AfterViewInit, OnInit {
 }
 
   addDownload(url?: string, quality?: string, format?: string, folder?: string, customNamePrefix?: string, playlistStrictMode?: boolean, playlistItemLimit?: number, autoStart?: boolean, downloadSubtitles?: boolean, downloadThumbnails?: boolean) {
-    url = url ?? this.addUrl
-    quality = quality ?? this.quality
-    format = format ?? this.format
-    folder = folder ?? this.folder
-    customNamePrefix = customNamePrefix ?? this.customNamePrefix
-    playlistStrictMode = playlistStrictMode ?? this.playlistStrictMode
-    playlistItemLimit = playlistItemLimit ?? this.playlistItemLimit
-    autoStart = autoStart ?? this.autoStart
-    downloadSubtitles = downloadSubtitles ?? this.subtitlesEnabled
-    downloadThumbnails = downloadThumbnails ?? this.thumbnailsEnabled
+    // First check if maintenance mode is active before attempting to add URL
+    this.authService.getMaintenanceInfo().subscribe({
+      next: (info) => {
+        if (info.maintenance_mode) {
+          // Maintenance mode is active - redirect to maintenance page
+          this.currentView = 'maintenance';
+          window.location.href = this.getUrlPrefix() + 'wartungsmodus';
+          return;
+        }
+        
+        // Proceed with adding download
+        url = url ?? this.addUrl
+        quality = quality ?? this.quality
+        format = format ?? this.format
+        folder = folder ?? this.folder
+        customNamePrefix = customNamePrefix ?? this.customNamePrefix
+        playlistStrictMode = playlistStrictMode ?? this.playlistStrictMode
+        playlistItemLimit = playlistItemLimit ?? this.playlistItemLimit
+        autoStart = autoStart ?? this.autoStart
+        downloadSubtitles = downloadSubtitles ?? this.subtitlesEnabled
+        downloadThumbnails = downloadThumbnails ?? this.thumbnailsEnabled
 
-    console.debug('Downloading: url='+url+' quality='+quality+' format='+format+' folder='+folder+' customNamePrefix='+customNamePrefix+' playlistStrictMode='+playlistStrictMode+' playlistItemLimit='+playlistItemLimit+' autoStart='+autoStart+' subtitles='+downloadSubtitles+' thumbnails='+downloadThumbnails);
-    this.addInProgress = true;
-    this.downloads.add(url, quality, format, folder, customNamePrefix, playlistStrictMode, playlistItemLimit, autoStart, downloadSubtitles, downloadThumbnails).subscribe((status: Status) => {
-      if (status.status === 'error') {
-        alert(`Fehler beim Hinzufügen der URL: ${status.msg}`);
-      } else {
-        this.addUrl = '';
+        console.debug('Downloading: url='+url+' quality='+quality+' format='+format+' folder='+folder+' customNamePrefix='+customNamePrefix+' playlistStrictMode='+playlistStrictMode+' playlistItemLimit='+playlistItemLimit+' autoStart='+autoStart+' subtitles='+downloadSubtitles+' thumbnails='+downloadThumbnails);
+        this.addInProgress = true;
+        this.downloads.add(url, quality, format, folder, customNamePrefix, playlistStrictMode, playlistItemLimit, autoStart, downloadSubtitles, downloadThumbnails).subscribe((status: Status) => {
+          if (status.status === 'error') {
+            // Check if error is due to maintenance mode
+            const errorMsg = typeof status.msg === 'object' ? JSON.stringify(status.msg) : status.msg;
+            if (errorMsg && (errorMsg.includes('Maintenance') || errorMsg.includes('Wartungsmodus') || errorMsg.includes('503'))) {
+              // Maintenance mode error - redirect to maintenance page
+              this.currentView = 'maintenance';
+              window.location.href = this.getUrlPrefix() + 'wartungsmodus';
+            } else {
+              alert(`Fehler beim Hinzufügen der URL: ${errorMsg}`);
+            }
+          } else {
+            this.addUrl = '';
+          }
+          this.addInProgress = false;
+        });
+      },
+      error: () => {
+        // If we can't check maintenance mode, still try to add (fallback)
+        url = url ?? this.addUrl
+        quality = quality ?? this.quality
+        format = format ?? this.format
+        folder = folder ?? this.folder
+        customNamePrefix = customNamePrefix ?? this.customNamePrefix
+        playlistStrictMode = playlistStrictMode ?? this.playlistStrictMode
+        playlistItemLimit = playlistItemLimit ?? this.playlistItemLimit
+        autoStart = autoStart ?? this.autoStart
+        downloadSubtitles = downloadSubtitles ?? this.subtitlesEnabled
+        downloadThumbnails = downloadThumbnails ?? this.thumbnailsEnabled
+
+        this.addInProgress = true;
+        this.downloads.add(url, quality, format, folder, customNamePrefix, playlistStrictMode, playlistItemLimit, autoStart, downloadSubtitles, downloadThumbnails).subscribe((status: Status) => {
+          if (status.status === 'error') {
+            const errorMsg = typeof status.msg === 'object' ? JSON.stringify(status.msg) : status.msg;
+            if (errorMsg && (errorMsg.includes('Maintenance') || errorMsg.includes('Wartungsmodus') || errorMsg.includes('503'))) {
+              this.currentView = 'maintenance';
+              window.location.href = this.getUrlPrefix() + 'wartungsmodus';
+            } else {
+              alert(`Fehler beim Hinzufügen der URL: ${errorMsg}`);
+            }
+          } else {
+            this.addUrl = '';
+          }
+          this.addInProgress = false;
+        });
       }
-      this.addInProgress = false;
     });
   }
 

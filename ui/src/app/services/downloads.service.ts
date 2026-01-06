@@ -103,7 +103,19 @@ export class DownloadsService {
   }
 
   handleHTTPError(error: HttpErrorResponse) {
-    const msg = error.error instanceof ErrorEvent ? error.error.message : error.error;
+    let msg: any;
+    if (error.error instanceof ErrorEvent) {
+      msg = error.error.message;
+    } else if (typeof error.error === 'string') {
+      msg = error.error;
+    } else if (error.error && error.error.error) {
+      msg = error.error.error;
+    } else if (error.status === 503) {
+      // Maintenance mode error
+      msg = 'Maintenance mode active';
+    } else {
+      msg = error.message || 'Unknown error';
+    }
     return of({status: 'error', msg: msg})
   }
 
