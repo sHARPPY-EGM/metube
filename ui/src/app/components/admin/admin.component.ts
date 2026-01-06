@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, viewChild, ElementRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -313,6 +313,18 @@ export class AdminComponent implements OnInit {
         this.maintenanceLoading = false;
       }
     });
+  }
+  
+  focusTimeInput(input: HTMLInputElement) {
+    if (input && !input.disabled) {
+      input.focus();
+      // Try to show native time picker (if supported)
+      if (input.showPicker && typeof input.showPicker === 'function') {
+        input.showPicker().catch(() => {
+          // Fallback: just focus if showPicker fails
+        });
+      }
+    }
   }
   
   buildMaintenanceDateTime(): string | null {

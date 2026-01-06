@@ -232,7 +232,11 @@
     position: absolute
     right: 0.75rem
     color: $text-secondary
-    pointer-events: none
+    cursor: pointer
+    transition: color $transition-fast
+    
+    &.clickable:hover
+      color: $purple-accent
 
 .datetime-label
   display: block

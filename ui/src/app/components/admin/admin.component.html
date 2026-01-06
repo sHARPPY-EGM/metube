@@ -198,12 +198,13 @@
                       type="time"
                       id="maintenanceTime"
                       name="maintenanceTime"
+                      #maintenanceTimeInput
                       class="form-control datetime-input time-input"
                       [(ngModel)]="maintenanceTime"
                       (change)="updateMaintenanceDateTime()"
                       [disabled]="maintenanceLoading"
                       placeholder="--:--">
-                    <fa-icon [icon]="faClock" class="time-icon" />
+                    <fa-icon [icon]="faClock" class="time-icon clickable" (click)="focusTimeInput(maintenanceTimeInput)" />
                   </div>
                 </div>
               </div>

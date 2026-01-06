@@ -12,9 +12,12 @@ import { interval, Subscription } from 'rxjs';
 export class MaintenanceComponent implements OnInit, OnDestroy {
   private authService = inject(AuthService);
   
+  maintenanceMode = true;
   maintenanceUntil: string | null = null;
   countdown: string = '';
+  showUnknown = false;
   private countdownSubscription: Subscription | null = null;
+  private maintenanceCheckSubscription: Subscription | null = null;
 
   ngOnInit() {
     this.loadMaintenanceInfo();
@@ -22,16 +25,35 @@ export class MaintenanceComponent implements OnInit, OnDestroy {
     this.countdownSubscription = interval(1000).subscribe(() => {
       this.updateCountdown();
     });
+    
+    // Check if maintenance mode is still active every 2 seconds
+    this.maintenanceCheckSubscription = interval(2000).subscribe(() => {
+      this.checkMaintenanceMode();
+    });
   }
 
   ngOnDestroy() {
     if (this.countdownSubscription) {
       this.countdownSubscription.unsubscribe();
     }
+    if (this.maintenanceCheckSubscription) {
+      this.maintenanceCheckSubscription.unsubscribe();
+    }
+  }
+
+  checkMaintenanceMode() {
+    this.authService.getMaintenanceInfo().subscribe(info => {
+      // If maintenance mode is disabled, redirect to main page
+      if (!info.maintenance_mode) {
+        // Redirect to main page
+        window.location.href = '/';
+      }
+    });
   }
 
   loadMaintenanceInfo() {
     this.authService.getMaintenanceInfo().subscribe(info => {
+      this.maintenanceMode = info.maintenance_mode;
       this.maintenanceUntil = info.maintenance_until;
       this.updateCountdown();
     });
@@ -40,8 +62,11 @@ export class MaintenanceComponent implements OnInit, OnDestroy {
   updateCountdown() {
     if (!this.maintenanceUntil) {
       this.countdown = '';
+      this.showUnknown = true;
       return;
     }
+
+    this.showUnknown = false;
 
     try {
       const until = new Date(this.maintenanceUntil);
@@ -50,6 +75,8 @@ export class MaintenanceComponent implements OnInit, OnDestroy {
 
       if (diff <= 0) {
         this.countdown = '';
+        // Maintenance time expired, check if maintenance mode is still active
+        this.checkMaintenanceMode();
         return;
       }
 
@@ -64,6 +91,7 @@ export class MaintenanceComponent implements OnInit, OnDestroy {
       }
     } catch (e) {
       this.countdown = '';
+      this.showUnknown = true;
     }
   }
 }

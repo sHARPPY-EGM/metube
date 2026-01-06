@@ -5,12 +5,16 @@
       Die Seite befindet sich derzeit im Wartungsmodus und ist vorübergehend nicht verfügbar.
     </p>
     
-    @if (maintenanceUntil && countdown) {
-      <div class="countdown-section">
-        <p class="countdown-label">Ungefähre Downtime bis:</p>
+    <div class="countdown-section">
+      <p class="countdown-label">Ungefähre Downtime bis:</p>
+      @if (showUnknown || !maintenanceUntil) {
+        <div class="countdown-value unknown">Nicht bekannt</div>
+      } @else if (countdown) {
         <div class="countdown-value">{{ countdown }}</div>
-      </div>
-    }
+      } @else {
+        <div class="countdown-value">Berechnung...</div>
+      }
+    </div>
   </div>
 </div>
 
