@@ -320,9 +320,17 @@ export class AdminComponent implements OnInit {
       input.focus();
       // Try to show native time picker (if supported)
       if (input.showPicker && typeof input.showPicker === 'function') {
-        input.showPicker().catch(() => {
-          // Fallback: just focus if showPicker fails
-        });
+        try {
+          const result = input.showPicker();
+          // showPicker can return void or a Promise, so check if it's a Promise
+          if (result && typeof result.catch === 'function') {
+            result.catch(() => {
+              // Fallback: just focus if showPicker fails
+            });
+          }
+        } catch (e) {
+          // showPicker might throw, just ignore
+        }
       }
     }
   }
