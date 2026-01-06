@@ -248,12 +248,18 @@ class PersistentQueue:
         return not bool(self.dict)
 
 class DownloadQueue:
-    def __init__(self, config, notifier):
+    def __init__(self, config, notifier, session_id=None):
         self.config = config
         self.notifier = notifier
-        self.queue = PersistentQueue(self.config.STATE_DIR + '/queue')
-        self.done = PersistentQueue(self.config.STATE_DIR + '/completed')
-        self.pending = PersistentQueue(self.config.STATE_DIR + '/pending')
+        self.session_id = session_id or 'default'
+        
+        # Use session-specific paths for queues
+        queue_dir = os.path.join(self.config.STATE_DIR, 'sessions', self.session_id)
+        os.makedirs(queue_dir, exist_ok=True)
+        
+        self.queue = PersistentQueue(os.path.join(queue_dir, 'queue'))
+        self.done = PersistentQueue(os.path.join(queue_dir, 'completed'))
+        self.pending = PersistentQueue(os.path.join(queue_dir, 'pending'))
         self.active_downloads = set()
         self.semaphore = None
         # Stop flag to halt all playlist processing
@@ -476,6 +482,8 @@ class DownloadQueue:
             return {'status': 'ok', 'msg': 'Stopped by user'}
         
         log.info(f'adding {url}: {quality=} {format=} {already=} {folder=} {custom_name_prefix=} {playlist_strict_mode=} {playlist_item_limit=} {auto_start=} {download_subtitles=} {download_thumbnails=}')
+        if format is None:
+            log.warning(f'Format is None for URL {url}, this may cause format selection issues')
         already = set() if already is None else already
         if url in already:
             log.info('recursion detected, skipping')
@@ -551,17 +559,23 @@ class DownloadQueue:
         return {'status': 'ok'}
 
     async def clear(self, ids):
+        """Clear downloads from done list and delete their files."""
         for id in ids:
             if not self.done.exists(id):
                 log.warn(f'requested delete for non-existent download {id}')
                 continue
-            if self.config.DELETE_FILE_ON_TRASHCAN:
-                dl = self.done.get(id)
-                try:
-                    dldirectory, _ = self.__calc_download_path(dl.info.quality, dl.info.format, dl.info.folder)
-                    os.remove(os.path.join(dldirectory, dl.info.filename))
-                except Exception as e:
-                    log.warn(f'deleting file for download {id} failed with error message {e!r}')
+            dl = self.done.get(id)
+            # Always delete the file when removing from list
+            try:
+                dldirectory, _ = self.__calc_download_path(dl.info.quality, dl.info.format, dl.info.folder)
+                filepath = os.path.join(dldirectory, dl.info.filename)
+                if os.path.exists(filepath):
+                    os.remove(filepath)
+                    log.info(f'Deleted file for download {id}: {filepath}')
+                else:
+                    log.warn(f'File not found for download {id}: {filepath}')
+            except Exception as e:
+                log.warn(f'deleting file for download {id} failed with error message {e!r}')
             self.done.delete(id)
             await self.notifier.cleared(id)
         return {'status': 'ok'}

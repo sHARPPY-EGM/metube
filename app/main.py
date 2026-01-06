@@ -19,6 +19,7 @@ from watchfiles import DefaultFilter, Change, awatch
 from ytdl import DownloadQueueNotifier, DownloadQueue
 from yt_dlp.version import __version__ as yt_dlp_version
 from auth import AuthManager
+from session_manager import SessionManager
 import aiohttp_session
 from aiohttp_session.cookie_storage import EncryptedCookieStorage
 import secrets
@@ -283,6 +284,11 @@ class Notifier(DownloadQueueNotifier):
         log.info(f"Notifier: Download cleared - {id}")
         await sio.emit('cleared', serializer.encode(id))
 
+# Initialize session manager for per-session download queues
+session_manager = SessionManager(config, sio)
+
+# Legacy global queue for backwards compatibility during migration
+# Will be removed once all endpoints use session_manager
 dqueue = DownloadQueue(config, Notifier())
 app.on_startup.append(lambda app: dqueue.initialize())
 
@@ -364,8 +370,10 @@ async def add(request):
         playlist_item_limit = config.DEFAULT_OPTION_PLAYLIST_ITEM_LIMIT
 
     playlist_item_limit = int(playlist_item_limit)
-
-    status = await dqueue.add(url, quality, format, folder, custom_name_prefix, playlist_strict_mode, playlist_item_limit, auto_start, download_subtitles, download_thumbnails)
+    
+    # Get session-specific queue
+    dqueue_session = await session_manager.get_queue_async(request, serializer)
+    status = await dqueue_session.add(url, quality, format, folder, custom_name_prefix, playlist_strict_mode, playlist_item_limit, auto_start, download_subtitles, download_thumbnails)
     return web.Response(text=serializer.encode(status))
 
 @routes.post(config.URL_PREFIX + 'delete')
@@ -376,7 +384,10 @@ async def delete(request):
     if not ids or where not in ['queue', 'done']:
         log.error("Bad request: missing 'ids' or incorrect 'where' value")
         raise web.HTTPBadRequest()
-    status = await (dqueue.cancel(ids) if where == 'queue' else dqueue.clear(ids))
+    
+    # Get session-specific queue
+    dqueue_session = await session_manager.get_queue_async(request, serializer)
+    status = await (dqueue_session.cancel(ids) if where == 'queue' else dqueue_session.clear(ids))
     log.info(f"Download delete request processed for ids: {ids}, where: {where}")
     return web.Response(text=serializer.encode(status))
 
@@ -385,24 +396,33 @@ async def start(request):
     post = await request.json()
     ids = post.get('ids')
     log.info(f"Received request to start pending downloads for ids: {ids}")
-    status = await dqueue.start_pending(ids)
+    
+    # Get session-specific queue
+    dqueue_session = await session_manager.get_queue_async(request, serializer)
+    status = await dqueue_session.start_pending(ids)
     return web.Response(text=serializer.encode(status))
 
 @routes.post(config.URL_PREFIX + 'cancel_all')
 async def cancel_all(request):
     log.info("Received request to cancel all downloads")
-    status = await dqueue.cancel_all()
+    
+    # Get session-specific queue
+    dqueue_session = await session_manager.get_queue_async(request, serializer)
+    status = await dqueue_session.cancel_all()
     return web.Response(text=serializer.encode(status))
 
 @routes.get(config.URL_PREFIX + 'history')
 async def history(request):
+    # Get session-specific queue
+    dqueue_session = await session_manager.get_queue_async(request, serializer)
+    
     history = { 'done': [], 'queue': [], 'pending': []}
 
-    for _, v in dqueue.queue.saved_items():
+    for _, v in dqueue_session.queue.saved_items():
         history['queue'].append(v)
-    for _, v in dqueue.done.saved_items():
+    for _, v in dqueue_session.done.saved_items():
         history['done'].append(v)
-    for _, v in dqueue.pending.saved_items():
+    for _, v in dqueue_session.pending.saved_items():
         history['pending'].append(v)
 
     log.info("Sending download history")
@@ -411,7 +431,11 @@ async def history(request):
 @sio.event
 async def connect(sid, environ):
     log.info(f"Client connected: {sid}")
-    await sio.emit('all', serializer.encode(dqueue.get()), to=sid)
+    
+    # Get session-specific queue for Socket.IO connection
+    dqueue_session = await session_manager.get_queue_async(sid, serializer)
+    
+    await sio.emit('all', serializer.encode(dqueue_session.get()), to=sid)
     await sio.emit('configuration', serializer.encode(config), to=sid)
     if config.CUSTOM_DIRS:
         await sio.emit('custom_dirs', serializer.encode(get_custom_dirs()), to=sid)

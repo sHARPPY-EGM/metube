@@ -17,7 +17,11 @@ def get_format(format: str, quality: str) -> str:
     Returns:
       dl_format: Formatted download string
     """
+    import logging
+    log = logging.getLogger('dl_formats')
+    original_format = format
     format = format or "any"
+    log.debug(f'get_format called with format="{original_format}" (normalized to "{format}"), quality="{quality}"')
 
     if format.startswith("custom:"):
         return format[7:]
@@ -28,7 +32,9 @@ def get_format(format: str, quality: str) -> str:
 
     if format in AUDIO_FORMATS:
         # Audio quality needs to be set post-download, set in opts
-        return f"bestaudio[ext={format}]/bestaudio/best"
+        result = f"bestaudio[ext={format}]/bestaudio/best"
+        log.debug(f'Audio format detected, returning: {result}')
+        return result
 
     if format in ("mp4", "any"):
         if quality == "audio":
@@ -46,9 +52,12 @@ def get_format(format: str, quality: str) -> str:
             # convert if needed), and falls back to getting the best available MP4
             # file.
             return f"bestvideo[vcodec~='^((he|a)vc|h26[45])']{vres}+bestaudio[acodec=aac]/bestvideo[vcodec~='^((he|a)vc|h26[45])']{vres}+bestaudio{afmt}/bestvideo{vcombo}+bestaudio{afmt}/best{vcombo}"
-        return f"bestvideo{vcombo}+bestaudio{afmt}/best{vcombo}"
+        result = f"bestvideo{vcombo}+bestaudio{afmt}/best{vcombo}"
+        log.debug(f'Video format detected, returning: {result}')
+        return result
 
-    raise Exception(f"Unkown format {format}")
+    log.error(f'Unknown format: {format}')
+    raise Exception(f"Unknown format {format}")
 
 
 def get_opts(format: str, quality: str, ytdl_opts: dict, download_subtitles: bool = False, download_thumbnails: bool = True) -> dict:
