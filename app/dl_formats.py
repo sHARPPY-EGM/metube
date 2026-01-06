@@ -33,7 +33,7 @@ def get_format(format: str, quality: str) -> str:
     if format in AUDIO_FORMATS:
         # Audio quality needs to be set post-download, set in opts
         result = f"bestaudio[ext={format}]/bestaudio/best"
-        log.debug(f'Audio format detected, returning: {result}')
+        log.info(f'Audio format detected ({format}), returning: {result}')
         return result
 
     if format in ("mp4", "any"):
@@ -53,7 +53,7 @@ def get_format(format: str, quality: str) -> str:
             # file.
             return f"bestvideo[vcodec~='^((he|a)vc|h26[45])']{vres}+bestaudio[acodec=aac]/bestvideo[vcodec~='^((he|a)vc|h26[45])']{vres}+bestaudio{afmt}/bestvideo{vcombo}+bestaudio{afmt}/best{vcombo}"
         result = f"bestvideo{vcombo}+bestaudio{afmt}/best{vcombo}"
-        log.debug(f'Video format detected, returning: {result}')
+        log.info(f'Video format detected (format={format}, quality={quality}), returning: {result}')
         return result
 
     log.error(f'Unknown format: {format}')
@@ -80,7 +80,10 @@ def get_opts(format: str, quality: str, ytdl_opts: dict, download_subtitles: boo
 
     postprocessors = []
 
+    # ONLY add FFmpegExtractAudio for actual audio formats
+    # Make sure format is NOT a video format
     if format in AUDIO_FORMATS:
+        log.info(f'Adding FFmpegExtractAudio postprocessor for audio format: {format}')
         postprocessors.append(
             {
                 "key": "FFmpegExtractAudio",
@@ -101,6 +104,8 @@ def get_opts(format: str, quality: str, ytdl_opts: dict, download_subtitles: boo
             )
             postprocessors.append({"key": "FFmpegMetadata"})
             postprocessors.append({"key": "EmbedThumbnail"})
+    else:
+        log.info(f'NOT adding FFmpegExtractAudio for format: {format} (not an audio-only format)')
 
     if format == "thumbnail":
         opts["skip_download"] = True
