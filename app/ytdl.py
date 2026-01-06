@@ -71,11 +71,14 @@ class Download:
         self.temp_dir = temp_dir
         self.output_template = output_template
         self.output_template_chapter = output_template_chapter
+        log.info(f'Download.__init__: format="{format}", quality="{quality}" for title="{getattr(info, "title", "unknown")}"')
         self.format = get_format(format, quality)
+        log.info(f'Download.__init__: get_format returned format string: "{self.format}"')
         # Get download options with subtitle and thumbnail preferences
         download_subtitles = getattr(info, 'download_subtitles', False)
         download_thumbnails = getattr(info, 'download_thumbnails', True)
         self.ytdl_opts = get_opts(format, quality, ytdl_opts, download_subtitles, download_thumbnails)
+        log.info(f'Download.__init__: ytdl_opts format-related keys: {[k for k in self.ytdl_opts.keys() if "format" in k.lower() or "extract" in k.lower()]}')
         if "impersonate" in self.ytdl_opts:
             self.ytdl_opts["impersonate"] = yt_dlp.networking.impersonate.ImpersonateTarget.from_str(self.ytdl_opts["impersonate"])
         self.info = info

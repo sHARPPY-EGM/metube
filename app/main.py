@@ -432,8 +432,26 @@ async def history(request):
 async def connect(sid, environ):
     log.info(f"Client connected: {sid}")
     
+    # Try to get session ID from HTTP session cookie in the Socket.IO handshake
+    # Socket.IO handshake includes cookies in environ
+    session_id = sid  # Use Socket.IO sid as session ID for now
+    
+    # Try to extract HTTP session ID from cookies
+    try:
+        cookies = environ.get('HTTP_COOKIE', '')
+        if 'metube_session=' in cookies:
+            # We need to get the actual session - but we can't easily do that here
+            # So we'll use a mapping approach
+            pass
+    except:
+        pass
+    
     # Get session-specific queue for Socket.IO connection
+    # Use sid as session_id for Socket.IO connections
     dqueue_session = await session_manager.get_queue_async(sid, serializer)
+    
+    # Join the session room
+    await sio.enter_room(sid, f"session_{sid}")
     
     await sio.emit('all', serializer.encode(dqueue_session.get()), to=sid)
     await sio.emit('configuration', serializer.encode(config), to=sid)

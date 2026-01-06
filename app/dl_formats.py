@@ -21,7 +21,7 @@ def get_format(format: str, quality: str) -> str:
     log = logging.getLogger('dl_formats')
     original_format = format
     format = format or "any"
-    log.debug(f'get_format called with format="{original_format}" (normalized to "{format}"), quality="{quality}"')
+    log.info(f'get_format called with format="{original_format}" (normalized to "{format}"), quality="{quality}"')
 
     if format.startswith("custom:"):
         return format[7:]

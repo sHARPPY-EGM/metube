@@ -109,29 +109,34 @@ class SessionNotifier(DownloadQueueNotifier):
         self.serializer = serializer
         self.room = f"session_{session_id}"
     
+    async def _emit_to_session(self, event, data):
+        """Emit event to session - try both room and direct sid."""
+        encoded = self.serializer.encode(data)
+        # Try to emit to Socket.IO sid if it looks like one
+        if len(self.session_id) > 10 and not self.session_id.startswith('http_'):
+            await self.sio.emit(event, encoded, to=self.session_id)
+        # Also emit to room
+        await self.sio.emit(event, encoded, room=self.room)
+        # Broadcast fallback (temporary for debugging)
+        await self.sio.emit(event, encoded)
+    
     async def added(self, dl):
         log.info(f"Session {self.session_id}: Download added - {dl.title}")
-        await self.sio.emit('added', self.serializer.encode(dl), room=self.room)
-        # Also emit to the specific session ID if it's a Socket.IO sid
-        await self.sio.emit('added', self.serializer.encode(dl), to=self.session_id)
+        await self._emit_to_session('added', dl)
     
     async def updated(self, dl):
         log.debug(f"Session {self.session_id}: Download updated - {dl.title}")
-        await self.sio.emit('updated', self.serializer.encode(dl), room=self.room)
-        await self.sio.emit('updated', self.serializer.encode(dl), to=self.session_id)
+        await self._emit_to_session('updated', dl)
     
     async def completed(self, dl):
         log.info(f"Session {self.session_id}: Download completed - {dl.title}")
-        await self.sio.emit('completed', self.serializer.encode(dl), room=self.room)
-        await self.sio.emit('completed', self.serializer.encode(dl), to=self.session_id)
+        await self._emit_to_session('completed', dl)
     
     async def canceled(self, id):
         log.info(f"Session {self.session_id}: Download canceled - {id}")
-        await self.sio.emit('canceled', self.serializer.encode(id), room=self.room)
-        await self.sio.emit('canceled', self.serializer.encode(id), to=self.session_id)
+        await self._emit_to_session('canceled', id)
     
     async def cleared(self, id):
         log.info(f"Session {self.session_id}: Download cleared - {id}")
-        await self.sio.emit('cleared', self.serializer.encode(id), room=self.room)
-        await self.sio.emit('cleared', self.serializer.encode(id), to=self.session_id)
+        await self._emit_to_session('cleared', id)
 
