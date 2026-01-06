@@ -177,16 +177,32 @@
           </div>
           
           @if (settings.maintenance_mode) {
-            <div class="mt-3">
-              <label for="maintenanceDateTime" class="form-label">Voraussichtliche Wiedererreichbarkeit</label>
-              <input
-                type="datetime-local"
-                id="maintenanceDateTime"
-                name="maintenanceDateTime"
-                class="form-control"
-                [(ngModel)]="maintenanceDateTime"
-                (change)="updateMaintenanceDateTime()"
-                [disabled]="maintenanceLoading">
+            <div class="maintenance-datetime-box">
+              <label class="form-label">Voraussichtliche Wiedererreichbarkeit</label>
+              <div class="datetime-inputs">
+                <div class="date-input-wrapper">
+                  <label for="maintenanceDate" class="datetime-label">Datum</label>
+                  <input
+                    type="date"
+                    id="maintenanceDate"
+                    name="maintenanceDate"
+                    class="form-control datetime-input"
+                    [(ngModel)]="maintenanceDate"
+                    (change)="updateMaintenanceDateTime()"
+                    [disabled]="maintenanceLoading">
+                </div>
+                <div class="time-input-wrapper">
+                  <label for="maintenanceTime" class="datetime-label">Uhrzeit</label>
+                  <input
+                    type="time"
+                    id="maintenanceTime"
+                    name="maintenanceTime"
+                    class="form-control datetime-input"
+                    [(ngModel)]="maintenanceTime"
+                    (change)="updateMaintenanceDateTime()"
+                    [disabled]="maintenanceLoading">
+                </div>
+              </div>
               <small class="form-text text-muted">
                 Optional: Wann die Seite voraussichtlich wieder verfügbar sein wird. Wird auf der Wartungsmodus-Seite angezeigt.
               </small>

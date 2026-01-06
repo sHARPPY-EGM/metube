@@ -197,3 +197,44 @@
     margin-left: 0.5rem
     cursor: pointer
 
+.maintenance-datetime-box
+  margin-top: 1.5rem
+  padding: 1.5rem
+  background: $bg-tertiary
+  border: 2px solid $purple-border
+  border-radius: $border-radius-md
+
+.datetime-inputs
+  display: flex
+  gap: 1rem
+  margin-bottom: 0.75rem
+  flex-wrap: wrap
+
+  @media (max-width: 576px)
+    flex-direction: column
+    gap: 1rem
+
+.date-input-wrapper,
+.time-input-wrapper
+  flex: 1
+  min-width: 150px
+
+.datetime-label
+  display: block
+  color: $text-primary
+  margin-bottom: 0.5rem
+  font-weight: 500
+  font-size: 0.85rem
+
+.datetime-input
+  width: 100%
+
+.form-text
+  display: block
+  color: $text-secondary
+  font-size: 0.85rem
+  margin-top: 0.5rem
+
+.text-muted
+  color: $text-secondary
+

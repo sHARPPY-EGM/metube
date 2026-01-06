@@ -193,9 +193,16 @@ class AuthManager:
         maintenance_until = self.data.get('maintenance_until')
         if maintenance_until:
             try:
-                from datetime import datetime
-                until_dt = datetime.fromisoformat(maintenance_until)
-                if datetime.now() >= until_dt:
+                from datetime import datetime, timezone
+                until_dt = datetime.fromisoformat(maintenance_until.replace('Z', '+00:00'))
+                # Ensure until_dt is timezone-aware
+                if until_dt.tzinfo is None:
+                    until_dt = until_dt.replace(tzinfo=timezone.utc)
+                
+                # Get current time as timezone-aware (UTC)
+                now_dt = datetime.now(timezone.utc)
+                
+                if now_dt >= until_dt:
                     # Maintenance period expired, disable maintenance mode
                     self.data['maintenance_mode'] = False
                     self.data['maintenance_until'] = None

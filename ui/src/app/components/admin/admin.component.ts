@@ -37,7 +37,8 @@ export class AdminComponent implements OnInit {
   };
   
   // Maintenance mode
-  maintenanceDateTime = '';
+  maintenanceDate = '';
+  maintenanceTime = '';
   maintenanceError = '';
   maintenanceLoading = false;
   
@@ -74,6 +75,23 @@ export class AdminComponent implements OnInit {
     
     this.authService.getAdminSettings().subscribe(settings => {
       this.settings = settings;
+      // Set maintenance date/time if maintenance_until exists
+      if (settings.maintenance_until) {
+        const date = new Date(settings.maintenance_until);
+        // Convert to local date format (YYYY-MM-DD)
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        this.maintenanceDate = `${year}-${month}-${day}`;
+        
+        // Convert to local time format (HH:mm)
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        this.maintenanceTime = `${hours}:${minutes}`;
+      } else {
+        this.maintenanceDate = '';
+        this.maintenanceTime = '';
+      }
     });
   }
   
@@ -231,17 +249,10 @@ export class AdminComponent implements OnInit {
     const newValue = !this.settings.maintenance_mode;
     let maintenanceUntil: string | null = null;
     
-    if (newValue && this.maintenanceDateTime) {
-      try {
-        const date = new Date(this.maintenanceDateTime);
-        if (isNaN(date.getTime())) {
-          this.maintenanceError = 'Ungültiges Datum/Zeit-Format';
-          return;
-        }
-        maintenanceUntil = date.toISOString();
-      } catch (e) {
-        this.maintenanceError = 'Fehler beim Konvertieren des Datums';
-        return;
+    if (newValue && this.maintenanceDate && this.maintenanceTime) {
+      maintenanceUntil = this.buildMaintenanceDateTime();
+      if (!maintenanceUntil) {
+        return; // Error already set in buildMaintenanceDateTime
       }
     }
     
@@ -273,17 +284,10 @@ export class AdminComponent implements OnInit {
     
     let maintenanceUntil: string | null = null;
     
-    if (this.maintenanceDateTime) {
-      try {
-        const date = new Date(this.maintenanceDateTime);
-        if (isNaN(date.getTime())) {
-          this.maintenanceError = 'Ungültiges Datum/Zeit-Format';
-          return;
-        }
-        maintenanceUntil = date.toISOString();
-      } catch (e) {
-        this.maintenanceError = 'Fehler beim Konvertieren des Datums';
-        return;
+    if (this.maintenanceDate && this.maintenanceTime) {
+      maintenanceUntil = this.buildMaintenanceDateTime();
+      if (!maintenanceUntil) {
+        return; // Error already set in buildMaintenanceDateTime
       }
     }
     
@@ -307,6 +311,29 @@ export class AdminComponent implements OnInit {
         this.maintenanceLoading = false;
       }
     });
+  }
+  
+  buildMaintenanceDateTime(): string | null {
+    if (!this.maintenanceDate || !this.maintenanceTime) {
+      this.maintenanceError = 'Datum und Uhrzeit sind erforderlich';
+      return null;
+    }
+    
+    try {
+      // Combine date and time
+      const dateTimeString = `${this.maintenanceDate}T${this.maintenanceTime}`;
+      const date = new Date(dateTimeString);
+      
+      if (isNaN(date.getTime())) {
+        this.maintenanceError = 'Ungültiges Datum/Zeit-Format';
+        return null;
+      }
+      
+      return date.toISOString();
+    } catch (e) {
+      this.maintenanceError = 'Fehler beim Konvertieren des Datums';
+      return null;
+    }
   }
 }
 

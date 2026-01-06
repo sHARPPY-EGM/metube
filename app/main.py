@@ -245,11 +245,11 @@ async def auth_middleware(request, handler):
             # Allow admin to access /admin even during maintenance
             if path == '/admin' or path.startswith('/api/admin'):
                 # Admin can always access admin panel during maintenance
-                pass
+                return await handler(request)
             # Allow access to maintenance page itself
             elif path == '/wartungsmodus':
                 # Allow access to maintenance page
-                pass
+                return await handler(request)
             else:
                 # Redirect all other requests to maintenance page
                 if request.headers.get('Accept', '').startswith('application/json'):
@@ -263,9 +263,9 @@ async def auth_middleware(request, handler):
         # Allow admin and maintenance page even without site password
         if path == '/admin' or path == '/wartungsmodus' or path.startswith('/api/admin'):
             # Admin and maintenance pages don't require site password
-            pass
+            return await handler(request)
         # Check if user is authenticated
-        elif not session.get('authenticated', False):
+        if not session.get('authenticated', False):
             # Allow access to login page
             if path == '/login':
                 return await handler(request)
