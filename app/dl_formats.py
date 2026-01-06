@@ -75,6 +75,8 @@ def get_opts(format: str, quality: str, ytdl_opts: dict, download_subtitles: boo
     Returns:
       ytdl_opts: Extra options
     """
+    import logging
+    log = logging.getLogger('dl_formats')
 
     opts = copy.deepcopy(ytdl_opts)
 
