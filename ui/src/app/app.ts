@@ -48,6 +48,7 @@ export class App implements AfterViewInit, OnInit {
   private http = inject(HttpClient);
   private cdr = inject(ChangeDetectorRef);
   private authService = inject(AuthService);
+  private socket = inject(MeTubeSocket);
 
   addUrl!: string;
   formats: Format[] = Formats;
@@ -165,7 +166,7 @@ export class App implements AfterViewInit, OnInit {
           if (data.maintenance_mode) {
             // Maintenance mode activated - redirect all users to maintenance page
             // (except if they're on admin page)
-            if (this.currentView !== 'admin' && this.currentView !== 'wartungsmodus') {
+            if (this.currentView !== 'admin' && this.currentView !== 'maintenance') {
               this.currentView = 'maintenance';
               window.location.href = this.getUrlPrefix() + 'wartungsmodus';
             }
