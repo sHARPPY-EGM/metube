@@ -321,9 +321,9 @@ export class AdminComponent implements OnInit {
       // Try to show native time picker (if supported)
       if (input.showPicker && typeof input.showPicker === 'function') {
         try {
-          const result = input.showPicker();
+          const result = (input.showPicker as () => void | Promise<void>)();
           // showPicker can return void or a Promise, so check if it's a Promise
-          if (result && typeof result.catch === 'function') {
+          if (result instanceof Promise) {
             result.catch(() => {
               // Fallback: just focus if showPicker fails
             });
