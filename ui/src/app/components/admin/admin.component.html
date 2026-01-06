@@ -193,14 +193,18 @@
                 </div>
                 <div class="time-input-wrapper">
                   <label for="maintenanceTime" class="datetime-label">Uhrzeit</label>
-                  <input
-                    type="time"
-                    id="maintenanceTime"
-                    name="maintenanceTime"
-                    class="form-control datetime-input"
-                    [(ngModel)]="maintenanceTime"
-                    (change)="updateMaintenanceDateTime()"
-                    [disabled]="maintenanceLoading">
+                  <div class="time-input-container">
+                    <input
+                      type="time"
+                      id="maintenanceTime"
+                      name="maintenanceTime"
+                      class="form-control datetime-input time-input"
+                      [(ngModel)]="maintenanceTime"
+                      (change)="updateMaintenanceDateTime()"
+                      [disabled]="maintenanceLoading"
+                      placeholder="--:--">
+                    <fa-icon [icon]="faClock" class="time-icon" />
+                  </div>
                 </div>
               </div>
               <small class="form-text text-muted">

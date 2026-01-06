@@ -2,7 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faCog, faLock, faUnlock, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import { faCog, faLock, faUnlock, faEye, faEyeSlash, faClock } from '@fortawesome/free-solid-svg-icons';
 import { AuthService, AdminSettings } from '../../services/auth.service';
 
 @Component({
@@ -20,6 +20,7 @@ export class AdminComponent implements OnInit {
   faUnlock = faUnlock;
   faEye = faEye;
   faEyeSlash = faEyeSlash;
+  faClock = faClock;
   
   // Admin login
   adminUsername = '';
@@ -77,17 +78,17 @@ export class AdminComponent implements OnInit {
       this.settings = settings;
       // Set maintenance date/time if maintenance_until exists
       if (settings.maintenance_until) {
-        // Parse UTC ISO string and display as UTC (no timezone conversion)
+        // Parse UTC ISO string and convert to local time for display
         const date = new Date(settings.maintenance_until);
-        // Use UTC methods to get UTC date/time values
-        const year = date.getUTCFullYear();
-        const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-        const day = String(date.getUTCDate()).padStart(2, '0');
+        // Convert to local date format (YYYY-MM-DD)
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
         this.maintenanceDate = `${year}-${month}-${day}`;
         
-        // Use UTC methods to get UTC time values
-        const hours = String(date.getUTCHours()).padStart(2, '0');
-        const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+        // Convert to local time format (HH:mm)
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
         this.maintenanceTime = `${hours}:${minutes}`;
       } else {
         this.maintenanceDate = '';
@@ -321,9 +322,8 @@ export class AdminComponent implements OnInit {
     }
     
     try {
-      // Combine date and time - treat it as UTC to avoid timezone conversion
-      // This way, if user enters 13:50, it stays 13:50 UTC (not converted to 12:50 UTC)
-      const dateTimeString = `${this.maintenanceDate}T${this.maintenanceTime}:00.000Z`;
+      // Combine date and time - this is interpreted as local time
+      const dateTimeString = `${this.maintenanceDate}T${this.maintenanceTime}`;
       const date = new Date(dateTimeString);
       
       if (isNaN(date.getTime())) {
@@ -331,6 +331,7 @@ export class AdminComponent implements OnInit {
         return null;
       }
       
+      // Convert local time to ISO string (UTC)
       return date.toISOString();
     } catch (e) {
       this.maintenanceError = 'Fehler beim Konvertieren des Datums';
