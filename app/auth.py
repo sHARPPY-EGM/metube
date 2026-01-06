@@ -46,7 +46,9 @@ class AuthManager:
             'admin_username': None,  # Store username in plain text (only one admin)
             'admin_password_hash': None,
             'site_password_hash': None,
-            'password_required': False
+            'password_required': False,
+            'maintenance_mode': False,
+            'maintenance_until': None  # ISO timestamp string
         }
         # Migrate from old format if needed
         if 'admin_username_hash' in self.data and 'admin_username' not in self.data:
@@ -181,4 +183,38 @@ class AuthManager:
             'password_required': self.is_password_required(),
             'has_site_password': self.data['site_password_hash'] is not None
         }
+    
+    def is_maintenance_mode(self) -> bool:
+        """Check if maintenance mode is active."""
+        if not self.data.get('maintenance_mode', False):
+            return False
+        
+        # Check if maintenance_until is set and has expired
+        maintenance_until = self.data.get('maintenance_until')
+        if maintenance_until:
+            try:
+                from datetime import datetime
+                until_dt = datetime.fromisoformat(maintenance_until)
+                if datetime.now() >= until_dt:
+                    # Maintenance period expired, disable maintenance mode
+                    self.data['maintenance_mode'] = False
+                    self.data['maintenance_until'] = None
+                    self._save()
+                    log.info('Maintenance mode expired, automatically disabled')
+                    return False
+            except (ValueError, TypeError) as e:
+                log.warning(f'Invalid maintenance_until timestamp: {e}')
+        
+        return True
+    
+    def get_maintenance_until(self) -> str | None:
+        """Get maintenance until timestamp."""
+        return self.data.get('maintenance_until')
+    
+    def set_maintenance_mode(self, enabled: bool, until: str | None = None):
+        """Enable or disable maintenance mode."""
+        self.data['maintenance_mode'] = enabled
+        self.data['maintenance_until'] = until
+        self._save()
+        log.info(f'Maintenance mode set to {enabled}' + (f' until {until}' if until else ''))
 

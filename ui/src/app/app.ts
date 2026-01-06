@@ -16,6 +16,7 @@ import { MasterCheckboxComponent , SlaveCheckboxComponent} from './components/';
 import { SetupComponent } from './components/setup/setup.component';
 import { LoginComponent } from './components/login/login.component';
 import { AdminComponent } from './components/admin/admin.component';
+import { MaintenanceComponent } from './components/maintenance/maintenance.component';
 import { AuthService } from './services/auth.service';
 
 @Component({
@@ -34,6 +35,7 @@ import { AuthService } from './services/auth.service';
         SetupComponent,
         LoginComponent,
         AdminComponent,
+        MaintenanceComponent,
   ],
   templateUrl: './app.html',
   styleUrl: './app.sass',
@@ -87,7 +89,7 @@ export class App implements AfterViewInit, OnInit {
   totalSpeed = 0;
   
   // Authentication state
-  currentView: 'main' | 'setup' | 'login' | 'admin' = 'main';
+  currentView: 'main' | 'setup' | 'login' | 'admin' | 'maintenance' = 'main';
   isAuthenticated = false;
 
   readonly queueMasterCheckbox = viewChild<MasterCheckboxComponent>('queueMasterCheckboxRef');
@@ -183,6 +185,32 @@ export class App implements AfterViewInit, OnInit {
       return;
     }
     
+    if (path === 'wartungsmodus' || path.startsWith('wartungsmodus')) {
+      this.currentView = 'maintenance';
+      this.cdr.detectChanges();
+      return;
+    }
+    
+    // Check maintenance mode first
+    this.authService.getMaintenanceInfo().subscribe({
+      next: (info) => {
+        if (info.maintenance_mode) {
+          this.currentView = 'maintenance';
+          window.history.pushState({}, '', this.getUrlPrefix() + 'wartungsmodus');
+          this.cdr.detectChanges();
+          return;
+        }
+        // Continue with normal auth check
+        this.checkAuthAfterMaintenance();
+      },
+      error: () => {
+        // On error, continue with normal flow
+        this.checkAuthAfterMaintenance();
+      }
+    });
+  }
+  
+  checkAuthAfterMaintenance() {
     // Check if setup is needed
     this.authService.isSetupNeeded().subscribe({
       next: (setupNeeded) => {

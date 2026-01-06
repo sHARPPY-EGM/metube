@@ -151,6 +151,55 @@
         
         <hr class="divider">
         
+        <!-- Maintenance Mode -->
+        <div class="setting-item">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <label class="setting-label">
+                <fa-icon [icon]="settings.maintenance_mode ? faLock : faUnlock" class="me-2" />
+                Wartungsmodus
+              </label>
+              <p class="setting-description">
+                Wenn aktiviert, können nur Administratoren auf die Seite zugreifen. Alle anderen Benutzer sehen eine Wartungsmodus-Seite.
+              </p>
+            </div>
+            <div class="form-check form-switch">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                role="switch"
+                [checked]="settings.maintenance_mode"
+                (change)="toggleMaintenanceMode()"
+                [disabled]="maintenanceLoading"
+                id="maintenanceMode">
+              <label class="form-check-label" for="maintenanceMode"></label>
+            </div>
+          </div>
+          
+          @if (settings.maintenance_mode) {
+            <div class="mt-3">
+              <label for="maintenanceDateTime" class="form-label">Voraussichtliche Wiedererreichbarkeit</label>
+              <input
+                type="datetime-local"
+                id="maintenanceDateTime"
+                name="maintenanceDateTime"
+                class="form-control"
+                [(ngModel)]="maintenanceDateTime"
+                (change)="updateMaintenanceDateTime()"
+                [disabled]="maintenanceLoading">
+              <small class="form-text text-muted">
+                Optional: Wann die Seite voraussichtlich wieder verfügbar sein wird. Wird auf der Wartungsmodus-Seite angezeigt.
+              </small>
+            </div>
+          }
+          
+          @if (maintenanceError) {
+            <div class="alert alert-danger mt-2">{{ maintenanceError }}</div>
+          }
+        </div>
+        
+        <hr class="divider">
+        
         <!-- Admin Password Change -->
         <div class="setting-item">
           <h3 class="setting-subtitle">Admin-Passwort ändern</h3>

@@ -1,0 +1,16 @@
+<div class="maintenance-container">
+  <div class="maintenance-card">
+    <h1 class="maintenance-title">Wartungsmodus</h1>
+    <p class="maintenance-description">
+      Die Seite befindet sich derzeit im Wartungsmodus und ist vorübergehend nicht verfügbar.
+    </p>
+    
+    @if (maintenanceUntil && countdown) {
+      <div class="countdown-section">
+        <p class="countdown-label">Ungefähre Downtime bis:</p>
+        <div class="countdown-value">{{ countdown }}</div>
+      </div>
+    }
+  </div>
+</div>
+

@@ -180,7 +180,7 @@ else:
 app = web.Application()
 # Add session middleware
 aiohttp_session.setup(app, EncryptedCookieStorage(session_key, cookie_name='metube_session', 
-                                                   max_age=60*60*24*7,  # 7 days
+                                                   max_age=60*60,  # 1 hour
                                                    httponly=True,
                                                    samesite='Strict',
                                                    secure=config.HTTPS))
@@ -209,6 +209,7 @@ async def auth_middleware(request, handler):
         '/api/admin/login',
         '/api/setup/status',
         '/api/auth/status',
+        '/api/maintenance',
         '/socket.io/',
         '/version',
         '/robots.txt'
@@ -224,7 +225,7 @@ async def auth_middleware(request, handler):
     is_static = path.startswith('/download/') or path.startswith('/audio_download/') or path.startswith('/assets/') or is_static_file
     
     # Setup/login pages
-    is_auth_page = path in ['/setup', '/login', '/admin'] or path == '/'
+    is_auth_page = path in ['/setup', '/login', '/admin', '/wartungsmodus'] or path == '/'
     
     # If setup is not complete, allow only setup route
     if not auth_manager.is_setup_complete():
@@ -234,17 +235,42 @@ async def auth_middleware(request, handler):
             # Redirect to setup page for HTML requests
             return web.HTTPFound(config.URL_PREFIX.rstrip('/') + '/setup')
     
+    # Check maintenance mode (but allow admin access)
+    if auth_manager.is_setup_complete():
+        session = await aiohttp_session.get_session(request)
+        is_admin_authenticated = session.get('admin_authenticated', False)
+        
+        # If maintenance mode is active
+        if auth_manager.is_maintenance_mode() and not is_public and not is_static:
+            # Allow admin to access /admin even during maintenance
+            if path == '/admin' or path.startswith('/api/admin'):
+                # Admin can always access admin panel during maintenance
+                pass
+            # Allow access to maintenance page itself
+            elif path == '/wartungsmodus':
+                # Allow access to maintenance page
+                pass
+            else:
+                # Redirect all other requests to maintenance page
+                if request.headers.get('Accept', '').startswith('application/json'):
+                    return web.json_response({'error': 'Maintenance mode active'}, status=503)
+                return web.HTTPFound(config.URL_PREFIX.rstrip('/') + '/wartungsmodus')
+    
     # If setup is complete but password is required
     if auth_manager.is_setup_complete() and auth_manager.is_password_required() and not is_public and not is_static:
         session = await aiohttp_session.get_session(request)
         
+        # Allow admin and maintenance page even without site password
+        if path == '/admin' or path == '/wartungsmodus' or path.startswith('/api/admin'):
+            # Admin and maintenance pages don't require site password
+            pass
         # Check if user is authenticated
-        if not session.get('authenticated', False):
+        elif not session.get('authenticated', False):
             # Allow access to login page
             if path == '/login':
                 return await handler(request)
             
-            # Allow access to other auth pages (setup, admin)
+            # Allow access to other auth pages (setup)
             if is_auth_page:
                 # Redirect main page to login
                 if path == '/' or path == '':
@@ -618,6 +644,14 @@ async def api_admin_status(request):
         'authenticated': session.get('admin_authenticated', False)
     })
 
+@routes.get(config.URL_PREFIX + 'api/maintenance')
+async def api_maintenance_info(request):
+    """Get maintenance mode information (public endpoint)."""
+    return web.json_response({
+        'maintenance_mode': auth_manager.is_maintenance_mode(),
+        'maintenance_until': auth_manager.get_maintenance_until()
+    })
+
 @routes.get(config.URL_PREFIX + 'api/admin/settings')
 async def api_admin_get_settings(request):
     """Get admin settings."""
@@ -627,7 +661,9 @@ async def api_admin_get_settings(request):
     
     return web.json_response({
         'password_required': auth_manager.is_password_required(),
-        'has_site_password': auth_manager.has_site_password()
+        'has_site_password': auth_manager.has_site_password(),
+        'maintenance_mode': auth_manager.is_maintenance_mode(),
+        'maintenance_until': auth_manager.get_maintenance_until()
     })
 
 @routes.post(config.URL_PREFIX + 'api/admin/settings')
@@ -665,6 +701,12 @@ async def api_admin_update_settings(request):
                 # Change admin password using the method
                 if not auth_manager.change_admin_password(old_password, new_password):
                     return web.json_response({'status': 'error', 'error': 'Failed to change password'}, status=400)
+        
+        # Update maintenance mode
+        if 'maintenance_mode' in post:
+            maintenance_mode = bool(post['maintenance_mode'])
+            maintenance_until = post.get('maintenance_until')  # ISO timestamp string or None
+            auth_manager.set_maintenance_mode(maintenance_mode, maintenance_until)
         
         return web.json_response({'status': 'ok'})
     except Exception as e:
@@ -743,6 +785,26 @@ async def admin_page(request):
         if os.path.isfile(static_file_path):
             return web.FileResponse(static_file_path)
         raise web.HTTPNotFound()
+
+@routes.get(config.URL_PREFIX + 'wartungsmodus')
+async def maintenance_page(request):
+    """Maintenance mode page."""
+    path = request.path
+    url_prefix = config.URL_PREFIX.rstrip('/')
+    if path.startswith(url_prefix):
+        path = path[len(url_prefix):]
+    if not path.startswith('/'):
+        path = '/' + path
+    
+    # If it's not exactly /wartungsmodus, check if it's a static file request
+    if path != '/wartungsmodus' and path.startswith('/wartungsmodus/'):
+        file_path = path[len('/wartungsmodus'):]
+        static_file_path = os.path.join(config.BASE_DIR, 'ui/dist/metube/browser', file_path.lstrip('/'))
+        if os.path.isfile(static_file_path):
+            return web.FileResponse(static_file_path)
+        raise web.HTTPNotFound()
+    
+    return web.FileResponse(os.path.join(config.BASE_DIR, 'ui/dist/metube/browser/index.html'))
     
     if not auth_manager.is_setup_complete():
         return web.HTTPFound(config.URL_PREFIX.rstrip('/') + '/setup')

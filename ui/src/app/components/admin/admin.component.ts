@@ -31,8 +31,15 @@ export class AdminComponent implements OnInit {
   // Settings
   settings: AdminSettings = {
     password_required: false,
-    has_site_password: false
+    has_site_password: false,
+    maintenance_mode: false,
+    maintenance_until: null
   };
+  
+  // Maintenance mode
+  maintenanceDateTime = '';
+  maintenanceError = '';
+  maintenanceLoading = false;
   
   // Site password
   sitePassword = '';
@@ -214,6 +221,90 @@ export class AdminComponent implements OnInit {
       error: () => {
         this.adminPasswordError = 'Fehler beim Ändern des Passworts';
         this.adminPasswordLoading = false;
+      }
+    });
+  }
+  
+  toggleMaintenanceMode() {
+    if (!this.isAdminAuthenticated) return;
+    
+    const newValue = !this.settings.maintenance_mode;
+    let maintenanceUntil: string | null = null;
+    
+    if (newValue && this.maintenanceDateTime) {
+      try {
+        const date = new Date(this.maintenanceDateTime);
+        if (isNaN(date.getTime())) {
+          this.maintenanceError = 'Ungültiges Datum/Zeit-Format';
+          return;
+        }
+        maintenanceUntil = date.toISOString();
+      } catch (e) {
+        this.maintenanceError = 'Fehler beim Konvertieren des Datums';
+        return;
+      }
+    }
+    
+    this.maintenanceLoading = true;
+    this.maintenanceError = '';
+    
+    this.authService.updateAdminSettings({ 
+      maintenance_mode: newValue,
+      maintenance_until: maintenanceUntil
+    }).subscribe({
+      next: (response) => {
+        if ('error' in response) {
+          this.maintenanceError = response.error;
+        } else {
+          this.settings.maintenance_mode = newValue;
+          this.settings.maintenance_until = maintenanceUntil;
+        }
+        this.maintenanceLoading = false;
+      },
+      error: () => {
+        this.maintenanceError = 'Fehler beim Aktualisieren des Wartungsmodus';
+        this.maintenanceLoading = false;
+      }
+    });
+  }
+  
+  updateMaintenanceDateTime() {
+    if (!this.isAdminAuthenticated || !this.settings.maintenance_mode) return;
+    
+    let maintenanceUntil: string | null = null;
+    
+    if (this.maintenanceDateTime) {
+      try {
+        const date = new Date(this.maintenanceDateTime);
+        if (isNaN(date.getTime())) {
+          this.maintenanceError = 'Ungültiges Datum/Zeit-Format';
+          return;
+        }
+        maintenanceUntil = date.toISOString();
+      } catch (e) {
+        this.maintenanceError = 'Fehler beim Konvertieren des Datums';
+        return;
+      }
+    }
+    
+    this.maintenanceLoading = true;
+    this.maintenanceError = '';
+    
+    this.authService.updateAdminSettings({ 
+      maintenance_mode: this.settings.maintenance_mode,
+      maintenance_until: maintenanceUntil
+    }).subscribe({
+      next: (response) => {
+        if ('error' in response) {
+          this.maintenanceError = response.error;
+        } else {
+          this.settings.maintenance_until = maintenanceUntil;
+        }
+        this.maintenanceLoading = false;
+      },
+      error: () => {
+        this.maintenanceError = 'Fehler beim Aktualisieren der Wartungszeit';
+        this.maintenanceLoading = false;
       }
     });
   }

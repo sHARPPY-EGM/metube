@@ -17,6 +17,8 @@ export interface AdminStatus {
 export interface AdminSettings {
   password_required: boolean;
   has_site_password: boolean;
+  maintenance_mode?: boolean;
+  maintenance_until?: string | null;
 }
 
 @Injectable({
@@ -66,7 +68,9 @@ export class AuthService {
     return this.http.get<AdminSettings>('api/admin/settings').pipe(
       catchError(() => of({
         password_required: false,
-        has_site_password: false
+        has_site_password: false,
+        maintenance_mode: false,
+        maintenance_until: null
       }))
     );
   }
@@ -75,8 +79,19 @@ export class AuthService {
     site_password?: string;
     password_required?: boolean;
     admin_password?: string;
+    maintenance_mode?: boolean;
+    maintenance_until?: string | null;
   }): Observable<{status: string} | {error: string}> {
     return this.http.post<{status: string} | {error: string}>('api/admin/settings', settings);
+  }
+  
+  getMaintenanceInfo(): Observable<{maintenance_mode: boolean; maintenance_until: string | null}> {
+    return this.http.get<{maintenance_mode: boolean; maintenance_until: string | null}>('api/maintenance').pipe(
+      catchError(() => of({
+        maintenance_mode: false,
+        maintenance_until: null
+      }))
+    );
   }
 
   createAdmin(username: string, password: string): Observable<{status: string} | {error: string}> {
